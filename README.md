@@ -37,4 +37,8 @@ Then open:
 
 The live branded site is hosted on Netlify at `pitch.augmentl.com`.
 
-If needed, redeploy from this directory using the Netlify API workflow already used for the existing site.
+At the moment, new Netlify deploys are blocked by the Netlify account state:
+
+- `Account credit usage exceeded - new deploys are blocked until credits are added`
+
+So the repo is ready, but automatic GitHub-triggered deploys are not enabled yet.
