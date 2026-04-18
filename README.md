@@ -4,8 +4,9 @@ Static pitch site for Scope.
 
 ## Live site
 
-- Public URL: https://pitch.augmentl.com
-- Netlify URL: https://augmentl-scope-pitch.netlify.app
+- GitHub Pages fallback: https://nickperillo.github.io/augmentl-scope-pitch/
+- Branded URL: https://pitch.augmentl.com
+- Legacy Netlify URL: https://augmentl-scope-pitch.netlify.app
 
 ## Local source
 
@@ -35,10 +36,12 @@ Then open:
 
 ## Deploy notes
 
-The live branded site is hosted on Netlify at `pitch.augmentl.com`.
+The repo now auto-publishes to GitHub Pages on every push to `main`.
 
-At the moment, new Netlify deploys are blocked by the Netlify account state:
+- GitHub Pages URL: `https://nickperillo.github.io/augmentl-scope-pitch/`
+
+The branded Netlify-hosted domain is currently blocked by the Netlify account state:
 
 - `Account credit usage exceeded - new deploys are blocked until credits are added`
 
-So the repo is ready, but automatic GitHub-triggered deploys are not enabled yet.
+So `pitch.augmentl.com` can be restored later, but the working public fallback is GitHub Pages for now.
