@@ -52,18 +52,19 @@ assert_before('<h2><span class="scope-brand">Scope</span> sees what an installat
 assert_contains('the core product and IP can support future Portals, Augmentl, and other installation deployments too')
 
 # Dashboard section now has a separate intro slide and three screenshot slides with contain framing.
-assert_contains('The controller is not the whole operating surface. The dashboard is the layer around the portals.')
+assert_contains('The dashboard is the operating layer around the portals — fleet view, project context, and team access in one place.')
 assert_contains('assets/dashboard-ops-attached.png')
 assert_contains('assets/dashboard-portals-attached.png')
 assert_contains('assets/dashboard-project-attached.png')
 assert_contains('preview-dashboard-frame contain')
-assert_contains('Augmentl Dashboard matters because the app is not the whole operating surface.')
+assert_contains('The Augmentl Dashboard is the fleet and operations layer around every portal.')
 assert_contains('The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.')
 assert_contains('The dashboard adds project and install context that the controller app should not have to carry.')
-assert_before('The capability already exists. The decision is how far to take it.', 'The controller is not the whole operating surface. The dashboard is the layer around the portals.')
-assert_before('The controller is not the whole operating surface. The dashboard is the layer around the portals.', 'Augmentl Dashboard matters because the app is not the whole operating surface.')
-assert_before('Augmentl Dashboard matters because the app is not the whole operating surface.', 'The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.')
+assert_before('The capability already exists. The decision is how far to take it.', 'The dashboard is the operating layer around the portals — fleet view, project context, and team access in one place.')
+assert_before('The dashboard is the operating layer around the portals — fleet view, project context, and team access in one place.', 'The Augmentl Dashboard is the fleet and operations layer around every portal.')
+assert_before('The Augmentl Dashboard is the fleet and operations layer around every portal.', 'The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.')
 assert_before('The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.', 'The dashboard adds project and install context that the controller app should not have to carry.')
+
 
 # Operating loop framing is explicit.
 assert_contains('Observe. Diagnose. Act. Learn.')
