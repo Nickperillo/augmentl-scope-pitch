@@ -28,6 +28,10 @@
       --yellow: #facc15;
       --red: #fb7185;
       --orange: #fb923c;
+      --controller-inset: 14px;
+      --controller-frame-height: min(860px, calc(100vh - 104px));
+      --dashboard-frame-width: 860px;
+      --dashboard-scale: 0.72;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -347,6 +351,9 @@
     }
 
     .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .commercial-slide .card h3 { font-size: 18px; }
+    .commercial-slide .card li { font-size: 17px; margin: 8px 0; }
+    .commercial-slide .callout { font-size: 20px; line-height: 1.32; max-width: 1180px; }
     .good { color: var(--green); }
     .warn { color: var(--yellow); }
     .bad  { color: var(--red); }
@@ -404,21 +411,27 @@
 
     /* ── APP PREVIEW SLIDES ─────────────────────────────────────────────── */
     .slide-preview { gap: 0; padding: 56px 80px 72px; }
+    :root {
+      --controller-frame-height: min(860px, calc(100vh - 104px));
+      --controller-inset: 14px;
+      --dashboard-frame-width: 860px;
+      --dashboard-scale: 0.72;
+    }
     .preview-layout {
       display: grid;
-      grid-template-columns: minmax(320px, 430px) minmax(560px, 760px);
-      gap: 72px;
+      grid-template-columns: minmax(430px, 580px) minmax(460px, 640px);
+      gap: 56px;
       align-items: center;
       justify-content: center;
       flex: 1;
       min-height: 0;
       width: 100%;
-      max-width: 1480px;
+      max-width: 1540px;
       margin: 0 auto;
     }
     .preview-layout.wide {
-      grid-template-columns: minmax(640px, 860px) minmax(420px, 560px);
-      max-width: 1580px;
+      grid-template-columns: minmax(680px, 1480px) minmax(360px, 520px);
+      max-width: 1960px;
     }
     .preview-phone {
       display: flex;
@@ -433,9 +446,10 @@
       align-items: stretch;
     }
     .phone-frame-large {
+      --live-inset: var(--controller-inset);
       /* Height-first: never taller than the available slide content area.
          Width auto-derives from the fixed aspect ratio. */
-      height: min(800px, calc(100vh - 128px));
+      height: var(--controller-frame-height);
       width: auto;
       aspect-ratio: 785 / 1600;
       max-width: 100%;
@@ -445,6 +459,7 @@
       box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(125,211,252,0.10), 0 0 60px rgba(96,165,250,0.06);
       overflow: hidden;
       position: relative;
+      overscroll-behavior: contain;
     }
     .phone-frame-large img {
       width: 100%;
@@ -453,8 +468,15 @@
       display: block;
       --phone-scale: 1.00;
       --phone-duration: 30s;
-      animation: phone-scroll-calibrated var(--phone-duration) ease-in-out infinite;
       will-change: transform;
+      transform: translateY(0) scale(var(--phone-scale));
+    }
+    .slide-preview.is-visible .phone-frame-large img {
+      animation: phone-scroll-calibrated var(--phone-duration) ease-in-out 1 1.5s both;
+    }
+    .slide-preview:not(.is-visible) .phone-frame-large img {
+      animation: none;
+      transform: translateY(0) scale(var(--phone-scale));
     }
     .phone-frame-large iframe {
       width: 100%;
@@ -462,21 +484,35 @@
       display: none;
       border: 0;
       background: #0a0a0f;
+      pointer-events: auto;
     }
-    .phone-frame-large.is-live img {
+    .phone-frame-large.is-live-ready img {
       display: none;
       animation: none;
     }
-    .phone-frame-large.is-live iframe {
+    .phone-frame-large.is-live-ready iframe {
       display: block;
+      position: absolute;
+      inset: var(--live-inset);
+      width: calc(100% - (var(--live-inset) * 2));
+      height: calc(100% - (var(--live-inset) * 2));
+      border-radius: 18px;
     }
     .phone-frame-controller img { --phone-scale: 1.00; }
     .phone-frame-mobile img { --phone-scale: 1.00; }
     .phone-frame-legacy {
-      height: min(620px, calc(100vh - 260px));
+      height: var(--controller-frame-height);
+    }
+    .phone-frame-legacy img {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      animation: none;
     }
     .preview-dashboard-frame {
-      width: min(860px, 100%);
+      width: min(var(--dashboard-frame-width), 100%);
       aspect-ratio: 16 / 10;
       border-radius: 28px;
       border: 1px solid rgba(255,255,255,0.12);
@@ -491,6 +527,118 @@
       object-fit: cover;
       object-position: top left;
       display: block;
+    }
+    .preview-dashboard-frame iframe {
+      width: 100%;
+      height: 100%;
+      display: none;
+      border: 0;
+      background: #090b12;
+    }
+    .preview-dashboard-frame.is-live-ready img {
+      display: none;
+    }
+    .preview-dashboard-frame.is-live-ready iframe {
+      display: block;
+      width: calc(100% / var(--dashboard-scale));
+      height: calc(100% / var(--dashboard-scale));
+      transform: scale(var(--dashboard-scale));
+      transform-origin: top left;
+    }
+    .preview-tuner {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 320px;
+      z-index: 1200;
+      border-radius: 18px;
+      border: 1px solid rgba(125,211,252,0.22);
+      background: rgba(6,10,18,0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+      color: #e5eefc;
+      overflow: hidden;
+    }
+    .preview-tuner[hidden] { display: none; }
+    .preview-tuner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .preview-tuner-header strong {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7dd3fc;
+    }
+    .preview-tuner-toggle {
+      appearance: none;
+      border: 1px solid rgba(125,211,252,0.25);
+      background: rgba(255,255,255,0.04);
+      color: #dbeafe;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .preview-tuner-body {
+      display: grid;
+      gap: 16px;
+      padding: 14px;
+    }
+    .preview-tuner[aria-collapsed="true"] .preview-tuner-body { display: none; }
+    .preview-tuner-section {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .preview-tuner-section h3 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+    }
+    .preview-tuner-row {
+      display: grid;
+      gap: 6px;
+    }
+    .preview-tuner-row label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .preview-tuner-row output {
+      font-variant-numeric: tabular-nums;
+      color: #f8fafc;
+    }
+    .preview-tuner-row input[type="range"] {
+      width: 100%;
+      accent-color: #38bdf8;
+    }
+    .preview-tuner-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .preview-tuner-actions button {
+      appearance: none;
+      border: 1px solid rgba(125,211,252,0.25);
+      background: rgba(255,255,255,0.04);
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 12px;
     }
     .preview-dashboard-frame.contain img {
       object-fit: contain;
@@ -509,7 +657,7 @@
       color: var(--muted2);
       font-weight: 600;
     }
-    .workflow-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .workflow-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .workflow-grid.three-up { grid-template-columns: repeat(3, 1fr); }
     .workflow-card {
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
@@ -567,7 +715,7 @@
       border: 1px solid rgba(255,255,255,0.10);
       background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
       min-height: 320px;
-      overflow: hidden;
+      overflow: visible;
     }
     .growth-stage::after {
       content: '→';
@@ -697,6 +845,298 @@
       color: var(--muted);
       line-height: 1.5;
     }
+
+    .preview-target {
+      position: relative;
+    }
+    .preview-frame-action {
+      appearance: none;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 4;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(6,10,18,0.74);
+      color: #e5eefc;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.26);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      transform: translateY(-2px);
+    }
+    .preview-target:hover .preview-frame-action,
+    .preview-target:focus-within .preview-frame-action {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .preview-frame-action:hover,
+    .preview-tuner-toggle:hover,
+    .preview-tuner-actions button:hover,
+    .copy-editor-toolbar button:hover,
+    .copy-editor-actions button:hover,
+    .preview-modal-close:hover {
+      border-color: rgba(125,211,252,0.42);
+      background: rgba(20,30,48,0.88);
+    }
+    [data-copy-editable="true"] {
+      transition: outline-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      outline: 1px solid transparent;
+      outline-offset: 6px;
+      border-radius: 8px;
+    }
+    body.copy-edit-enabled [data-copy-editable="true"] {
+      cursor: text;
+      outline-color: rgba(125,211,252,0.22);
+    }
+    body.copy-edit-enabled [data-copy-editable="true"]:hover {
+      background: rgba(125,211,252,0.05);
+      outline-color: rgba(125,211,252,0.32);
+    }
+    body.copy-edit-enabled [data-copy-editable="true"]:focus {
+      background: rgba(125,211,252,0.08);
+      outline-color: rgba(125,211,252,0.48);
+      box-shadow: 0 0 0 4px rgba(125,211,252,0.10);
+    }
+    .preview-modal,
+    .copy-editor-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      background: rgba(3,6,12,0.92);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .preview-modal.is-open,
+    .copy-editor-modal.is-open {
+      display: flex;
+    }
+    .preview-modal-panel {
+      width: min(96vw, 1800px);
+      height: min(92vh, 1100px);
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #050912;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 28px 100px rgba(0,0,0,0.55);
+    }
+    .preview-modal-content {
+      width: 100%;
+      height: 100%;
+    }
+    .preview-modal-panel iframe,
+    .preview-modal-panel img {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      object-fit: contain;
+      background: #050912;
+    }
+    .preview-modal-close {
+      appearance: none;
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(6,10,18,0.78);
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .copy-editor-modal {
+      align-items: stretch;
+      justify-content: flex-end;
+      padding: 0;
+    }
+    .copy-editor-panel {
+      width: min(540px, 100vw);
+      height: 100vh;
+      background: rgba(6,10,18,0.96);
+      border-left: 1px solid rgba(255,255,255,0.08);
+      box-shadow: -24px 0 80px rgba(0,0,0,0.44);
+      display: flex;
+      flex-direction: column;
+    }
+    .copy-editor-header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      gap: 8px;
+    }
+    .copy-editor-header strong {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #7dd3fc;
+    }
+    .copy-editor-header p {
+      margin: 0;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+    .copy-editor-toolbar,
+    .copy-editor-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .copy-editor-toolbar button,
+    .copy-editor-actions button {
+      appearance: none;
+      border: 1px solid rgba(125,211,252,0.2);
+      background: rgba(255,255,255,0.04);
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .copy-editor-fields {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 18px 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .copy-editor-field {
+      display: grid;
+      gap: 6px;
+    }
+    .copy-editor-field label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    .copy-editor-field textarea {
+      width: 100%;
+      min-height: 68px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #f8fafc;
+      padding: 10px 12px;
+      font: inherit;
+      line-height: 1.45;
+    }
+    .copy-editor-footer {
+      padding: 14px 18px 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .preview-tuner {
+      width: 320px;
+      transition: width 0.2s ease, border-radius 0.2s ease, background 0.2s ease;
+    }
+    .preview-tuner[aria-collapsed="true"] {
+      width: 44px;
+      min-width: 44px;
+      border-radius: 999px;
+      overflow: visible;
+      background: rgba(6,10,18,0.62);
+    }
+    .preview-tuner[aria-collapsed="true"] .preview-tuner-header {
+      border-bottom: 0;
+      padding: 0;
+      width: 44px;
+      height: 44px;
+      justify-content: center;
+    }
+    .preview-tuner[aria-collapsed="true"] .preview-tuner-header strong {
+      display: none;
+    }
+    .preview-tuner-toggle {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .preview-tuner-select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #f8fafc;
+      padding: 8px 10px;
+      font: inherit;
+    }
+    .growth-vision {
+      gap: 26px;
+    }
+    .growth-stages {
+      gap: 24px;
+    }
+    .growth-stage {
+      gap: 12px;
+      min-height: 0;
+      padding: 20px 20px 18px;
+    }
+    .growth-stage::after {
+      top: 20px;
+      right: -18px;
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+    }
+    .growth-stage h3 {
+      font-size: 22px;
+      line-height: 1.15;
+    }
+    .growth-stage li {
+      font-size: 15px;
+      line-height: 1.38;
+    }
+    .growth-meta {
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .growth-band,
+    .growth-note {
+      padding: 20px 22px;
+    }
+    .growth-band-track {
+      gap: 18px;
+      align-items: start;
+      padding-top: 10px;
+    }
+    .growth-band-track::before {
+      top: 28px;
+      left: 8%;
+      right: 8%;
+    }
+    .growth-band-step {
+      gap: 10px;
+    }
+    .growth-band-step span {
+      max-width: 150px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .growth-note p {
+      font-size: 15px;
+      line-height: 1.45;
+    }
     @keyframes phone-scroll-calibrated {
       0%, 12% {
         transform: translateY(0) scale(var(--phone-scale));
@@ -718,9 +1158,9 @@
     .preview-callouts {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 18px;
       justify-content: center;
-      max-width: 640px;
+      max-width: 600px;
     }
     .preview-header { margin-bottom: 4px; }
     .preview-header h2 { margin-bottom: 0; font-size: 40px; }
@@ -732,13 +1172,13 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
     .callout-item {
       display: flex;
       align-items: flex-start;
-      gap: 18px;
-      padding: 16px 20px;
+      gap: 16px;
+      padding: 14px 18px;
       border-radius: 16px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
@@ -761,7 +1201,7 @@
       box-shadow: 0 0 12px var(--c, var(--accent));
       margin-top: 6px;
     }
-    .callout-item div { font-size: 18px; line-height: 1.45; color: var(--muted); }
+    .callout-item div { font-size: 17px; line-height: 1.42; color: var(--muted); }
     .callout-item div strong { color: var(--text); font-size: 19px; }
 
     /* Architecture detail - Scope Bridge owns most portal-side integrations; Controllino is separate. */
@@ -1178,6 +1618,79 @@
       z-index: 2;
     }
 
+    @media (max-height: 820px) {
+      .slide {
+        padding: 58px 64px 64px;
+        gap: 20px;
+      }
+      .slide .footer {
+        left: 64px;
+        right: 64px;
+        bottom: 22px;
+        font-size: 12px;
+      }
+      h1 { font-size: 74px; }
+      h2 { font-size: 38px; margin-bottom: 16px; }
+      .lead { font-size: 24px; line-height: 1.3; max-width: 900px; }
+      p, li { font-size: 18px; line-height: 1.38; }
+      .card {
+        padding: 22px 24px;
+        border-radius: 18px;
+      }
+      .card li,
+      .card p,
+      .workflow-card p,
+      .roadmap-card p,
+      .roadmap-card li,
+      .growth-stage li,
+      .growth-note p,
+      .callout-item div { font-size: 16px; }
+      .callout-item div strong { font-size: 18px; }
+      .metric .value { font-size: 32px; }
+      .preview-layout {
+        gap: 40px;
+        max-width: 1460px;
+      }
+      .preview-layout.wide { grid-template-columns: minmax(640px, 820px) minmax(400px, 520px); }
+      .preview-callouts { gap: 14px; max-width: 560px; }
+      .callout-list { gap: 10px; }
+      .callout-item {
+        gap: 14px;
+        padding: 12px 16px;
+      }
+      .workflow-grid { gap: 16px; }
+      .workflow-card,
+      .roadmap-card {
+        min-height: 0;
+        padding: 20px 20px 18px;
+      }
+      .workflow-card h3,
+      .roadmap-card h3,
+      .growth-stage h3 { font-size: 21px; }
+      .growth-stages { gap: 14px; }
+      .growth-stage {
+        gap: 10px;
+        padding: 18px 18px 16px;
+        min-height: 0;
+      }
+      .growth-meta { gap: 14px; }
+      .growth-band,
+      .growth-note { padding: 16px 18px; }
+      .sys-row.row-bot .sys-box,
+      .slide-arch .sys-box,
+      .slide-arch .sys-box.hub { min-height: 0; }
+      .intro-panel {
+        inset: 22px;
+        gap: 20px;
+      }
+      .intro-copy { gap: 10px; }
+      .intro-copy .lead { max-width: 600px; }
+      .slide-centered-stage .card { max-width: 1080px; }
+      .slide-centered-stage.ask-slide .card {
+        padding: 22px 24px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .phone-frame img { animation: none; }
       .mark-dot { animation: none; }
@@ -1291,19 +1804,17 @@
         <div class="card">
           <h3>When a portal goes dark</h3>
           <ul>
-            <li>We find out from a visitor, a local operator, or a guess.</li>
-            <li>Diagnosis can take hours because the full installation stack is effectively opaque.</li>
-            <li>Recovery means logging into Splashtop and attempting a restart through a buggy app. No real diagnostic capability, no root cause.</li>
-            <li>Reports from the audience or client are a last resort and should not be necessary at all. Ideally, we should be the ones informing them first.</li>
+            <li>We usually find out from a visitor or local operator.</li>
+            <li>Diagnosis can take hours because the installation stack is effectively opaque.</li>
+            <li>Recovery starts in Splashtop and a buggy app, not in a real operating layer.</li>
           </ul>
         </div>
         <div class="card">
           <h3>The deeper problem</h3>
           <ul>
-            <li>Operational knowledge lives in one person's head: a single point of failure for a global network</li>
-            <li>No tool encodes what a healthy portal looks like, so nothing can detect when one isn't</li>
-            <li>The only remote-management layer we had was Konstruktiv, which covered a narrow control layer and is being retired as we transition to the new system</li>
-            <li>Splashtop is a remote desktop, not a monitoring solution, and should be a last resort rather than the normal way to understand portal health.</li>
+            <li>Operational knowledge lives in one person's head.</li>
+            <li>No tool encodes what healthy portal behavior looks like.</li>
+            <li>The tools we had covered only narrow slices of the installation.</li>
           </ul>
         </div>
       </div>
@@ -1320,28 +1831,24 @@
         <div class="preview-callouts">
           <div class="preview-header">
             <div class="kicker">Context</div>
-            <h2>We did have a remote-management app, but it only touched the control hardware layer.</h2>
+            <h2>The old controller touched one layer. Scope covers the installation.</h2>
           </div>
           <ul class="callout-list">
             <li class="callout-item" style="--d:0.1s">
               <span class="callout-dot" style="--c:var(--yellow)"></span>
-              <div><strong>Mostly a Controllino view</strong><br>It was mainly a window into the control hardware layer: heartbeat, two temperature probes, and a narrow firmware view.</div>
+              <div><strong>Mostly a Controllino view</strong><br>Heartbeat, temperatures, and a narrow firmware/control window.</div>
             </li>
             <li class="callout-item" style="--d:0.35s">
               <span class="callout-dot" style="--c:var(--yellow)"></span>
-              <div><strong>Nuclear recovery path</strong><br>In practice it was mostly used to check whether the portal was alive and try to bring it back with boot, shutdown, or reboot.</div>
+              <div><strong>Recovery buttons, not diagnosis</strong><br>Useful for boot, shutdown, and reboot when something already looked wrong.</div>
             </li>
             <li class="callout-item" style="--d:0.6s">
               <span class="callout-dot" style="--c:var(--yellow)"></span>
-              <div><strong>No display stack access</strong><br>It could trigger a blank state, but not the actual LED stack: no NovaStar brightness control, no panel telemetry, no display health reasoning.</div>
+              <div><strong>No display-layer control</strong><br>No NovaStar brightness control, panel telemetry, or display health reasoning.</div>
             </li>
             <li class="callout-item" style="--d:0.85s">
-              <span class="callout-dot" style="--c:var(--yellow)"></span>
-              <div><strong>Some AC controls, but weak in practice</strong><br>It also exposed AC controls, but these were limited and not reliable enough to count as a real operating layer.</div>
-            </li>
-            <li class="callout-item" style="--d:1.1s">
               <span class="callout-dot" style="--c:var(--red)"></span>
-              <div><strong>Being retired during the transition</strong><br>It remains available only as a stopgap while Scope takes over, because it never expanded beyond the narrow control layer the network actually needs.</div>
+              <div><strong>Proof of need, not the solution</strong><br>It showed the value of a mobile surface, but not enough depth to operate the full installation.</div>
             </li>
           </ul>
         </div>
@@ -1355,7 +1862,7 @@
       <div>
         <div class="kicker">Transition</div>
         <h2>The shift is from controlling a cabinet to operating the whole installation.</h2>
-        <p class="lead">The Konstruktiv app proved the value of a mobile control surface. <span class="scope-brand">Scope</span> keeps that convenience, then extends it across the full installation: PC, stream, display, controller, power, environment, and network.</p>
+        <p class="lead">Konstruktiv proved the value of a mobile control surface. <span class="scope-brand">Scope</span> keeps that convenience and extends it across the whole installation.</p>
       </div>
       <div class="cols equal">
         <div class="card">
@@ -1377,7 +1884,7 @@
           </ul>
         </div>
       </div>
-      <div class="callout" style="margin-top:16px;">The controller was a narrow intervention tool. <span class="scope-brand">Scope</span> becomes the operational layer around the whole installation. <span class="muted">This slide is about the product surface expanding. The operating loop comes next.</span></div>
+      <div class="callout" style="margin-top:16px;">The controller proved the value of a remote surface. <span class="scope-brand">Scope</span> turns that idea into an operating layer for the whole installation.</div>
       <div class="footer"><span>Remote buttons were the starting point. Full-installation operations is the actual destination.</span><span>4</span></div>
     </section>
 
@@ -1400,34 +1907,6 @@
       <div class="footer"><span>A system built from the real operating work, not bought off the shelf.</span><span>5</span></div>
     </section>
 
-    <!-- SLIDE 6 - ALREADY IN USE -->
-    <section class="slide">
-      <div>
-        <div class="kicker">Already in use</div>
-        <h2>This is already useful in real operations. The question is whether to formalise and extend it.</h2>
-        <p class="lead">Portal 5 is the live proving ground. The system is already being used to see the installation, diagnose faults, and act faster than a manual Splashtop check ever could.</p>
-      </div>
-      <div class="feature-grid">
-        <div class="card">
-          <h3>Live on a real portal</h3>
-          <p>Not a mockup. Not a concept video. The controller, dashboard, alerts, and operating logic are already being exercised against a live installation.</p>
-        </div>
-        <div class="card">
-          <h3>Already solving real operator problems</h3>
-          <p>It makes screen state, stream health, power, thermal conditions, and intervention paths visible before someone has to notice a problem first.</p>
-        </div>
-        <div class="card">
-          <h3>Past the invention stage</h3>
-          <p>The remaining work is productising, broadening access, and hardening rollout. This pitch is about adopting and extending the system, not deciding whether it should exist.</p>
-        </div>
-        <div class="card">
-          <h3>Built from inside the operating work</h3>
-          <p><span class="scope-brand">Scope</span> was built from the same day-to-day operational work that supports these installations. That is why it fits — and why the same system can extend beyond Portals.</p>
-        </div>
-      </div>
-      <div class="footer"><span>The capability already exists. The decision is how far to take it.</span><span>6</span></div>
-    </section>
-
     <!-- SLIDE 7 - WHAT SCOPE SEES -->
     <section class="slide">
       <div>
@@ -1437,19 +1916,19 @@
       <div class="feature-grid">
         <div class="card">
           <h3>Visual state</h3>
-          <p>Live kiosk screenshot + operator display capture · LED brightness and panel temperature grid · VW call state and stream health · freeze detection · rolling uptime.</p>
+          <p>Live kiosk and operator views, stream health, freeze detection, and rolling uptime.</p>
         </div>
         <div class="card">
           <h3>Display control</h3>
-          <p>NovaStar brightness, blanking · weather/solar auto-brightness with thermal override · per-panel temperature mapping.</p>
+          <p>NovaStar brightness and blanking, weather-driven auto-brightness, and panel temperature mapping.</p>
         </div>
         <div class="card">
           <h3>Hardware layer</h3>
-          <p>Controllino system state · AC alarms and probe temps · UPS supercap state · energy draw · WAN 1/2 with failover history · PC health and uptime.</p>
+          <p>Controllino, AC, UPS, WAN, and PC health in one operating view.</p>
         </div>
         <div class="card">
           <h3>On-site commissioning</h3>
-          <p>Camera exposure, white balance, virtual tilt, lens correction · presence detection · per-installation profiles.</p>
+          <p>Camera setup, virtual tilt, lens correction, presence detection, and per-installation profiles.</p>
         </div>
       </div>
       <div class="footer"><span>Nothing on this slide is on the Video Window roadmap.</span><span>7</span></div>
@@ -1535,7 +2014,7 @@
           <div class="sys-row row-bridge-services">
             <div class="sys-box hw">
               <div class="sys-title">▶ Video Window</div>
-              <div class="sys-sub">Portal AV app (3rd party) · monitored &amp; kept alive by Scope Bridge · future: native replacement</div>
+              <div class="sys-sub">Portal AV app · monitored &amp; kept alive by Scope Bridge · future: native replacement</div>
             </div>
             <div class="sys-box hw">
               <div class="sys-title">🟪 NovaStar VX</div>
@@ -1592,165 +2071,6 @@
       </div>
       <div class="footer"><span>The value is not only control. It is the learning loop around every portal.</span><span>9</span></div>
     </section>
-
-
-    <!-- SLIDE 9 - DASHBOARD INTRO -->
-    <section class="slide">
-      <div>
-        <div class="kicker">Dashboard layer</div>
-        <h2>The dashboard is the operating layer around the portals — fleet view, project context, and team access in one place.</h2>
-      </div>
-      <div class="workflow-grid">
-        <div class="workflow-card">
-          <div class="workflow-step">Layer 01 · fleet</div>
-          <h3>See the network at once</h3>
-          <p>Compare sites, spot weak portals, watch pairings, and see where attention is needed across the network, not just inside one portal page.</p>
-        </div>
-        <div class="workflow-card">
-          <div class="workflow-step">Layer 02 · project</div>
-          <h3>Carry install context</h3>
-          <p>Tasks, notes, deploy timing, documents, client context, and rollout state belong in the dashboard layer, not inside the runtime controller.</p>
-        </div>
-        <div class="workflow-card">
-          <div class="workflow-step">Layer 03 · team</div>
-          <h3>Different views for different operators</h3>
-          <p>Augmentl can use the full workspace, while Portals can have a portals-only variant that shows just the network-relevant operational surface.</p>
-        </div>
-        <div class="workflow-card">
-          <div class="workflow-step">Layer 04 · product</div>
-          <h3>One system, multiple surfaces</h3>
-          <p>The value is one shared system that can expose a deep controller, a fleet dashboard, a portal-team view, and later client-facing slices of the same model.</p>
-        </div>
-      </div>
-      <div class="footer"><span>The controller acts on one installation. The dashboard makes the wider system operable.</span><span>10</span></div>
-    </section>
-
-    <!-- SLIDE 10 - AUGMENTL DASHBOARD -->
-    <section class="slide slide-preview" data-slide="dashboard-fleet">
-      <div class="preview-layout wide">
-        <div class="preview-phone">
-          <div class="preview-dashboard-frame contain"><img src="assets/dashboard-ops-attached.png" alt="Augmentl Dashboard operations view" /></div>
-          <div class="dashboard-caption">Augmentl Dashboard · operations view across portals, projects, tasks, calendar, and inbox</div>
-        </div>
-        <div class="preview-callouts">
-          <div class="preview-header">
-            <div class="kicker">Dashboard layer</div>
-            <h2>The Augmentl Dashboard is the fleet and operations layer around every portal.</h2>
-          </div>
-          <ul class="callout-list">
-            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Fleet view, not single-portal view</strong><br>The controller tells you what is happening at one installation. The dashboard tells you what is happening across the fleet, where attention is needed, and how sites compare.</div></li>
-            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Operations layer around the portals</strong><br>Projects, tasks, priorities, calendar, inbox, and portal status sit around the runtime layer. That is what makes a network operable, not just observable.</div></li>
-            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Useful to Augmentl and to Portals</strong><br>Augmentl needs the broader operating surface. Portals could have a portal-team-specific dashboard variant that only shows the portals layer, without the rest of the internal workspace.</div></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer"><span>Fleet awareness, project context, and operations planning in one surface.</span><span>11</span></div>
-    </section>
-
-    <!-- SLIDE 11 - PORTALS-ONLY DASHBOARD -->
-    <section class="slide slide-preview" data-slide="dashboard-portals">
-      <div class="preview-layout wide">
-        <div class="preview-phone">
-          <div class="preview-dashboard-frame contain"><img src="assets/dashboard-portals-attached.png" alt="Portals-only dashboard view" /></div>
-          <div class="dashboard-caption">Portal-team-specific dashboard variant · portals-only network view</div>
-        </div>
-        <div class="preview-callouts">
-          <div class="preview-header">
-            <div class="kicker">Portals-only variant</div>
-            <h2>The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.</h2>
-          </div>
-          <ul class="callout-list">
-            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Only the portal network surface</strong><br>Status, pairings, uptime, telemetry presence, offline nodes, and live visual state can all be shown in one clear portal-team view.</div></li>
-            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Useful for shared operations</strong><br>It gives Portals a clean operational surface for the network without requiring access to broader project, inbox, or internal coordination layers.</div></li>
-            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Good basis for scoped access</strong><br>This same partitioning is what later makes client-facing or portal-team-specific access realistic, because the data is already separated into appropriate surfaces.</div></li>
-            <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Same backend, narrower front-end</strong><br>The point is not another product. It is a narrower view of the same product, tuned for the portal team’s actual day-to-day needs.</div></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer"><span>A portal-team dashboard can be a narrower view of the same system, not a separate tool.</span><span>12</span></div>
-    </section>
-
-    <!-- SLIDE 12 - PROJECT WORKSPACES -->
-    <section class="slide slide-preview" data-slide="dashboard-projects">
-      <div class="preview-layout wide">
-        <div class="preview-phone">
-          <div class="preview-dashboard-frame contain"><img src="assets/dashboard-project-attached.png" alt="Portal project page inside the dashboard" /></div>
-          <div class="dashboard-caption">Portal project page · install context, notes, tasks, docs, and monitoring in one place</div>
-        </div>
-        <div class="preview-callouts">
-          <div class="preview-header">
-            <div class="kicker">Project-specific dashboard view</div>
-            <h2>The dashboard adds project and install context that the controller app should not have to carry.</h2>
-          </div>
-          <ul class="callout-list">
-            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Project and install context</strong><br>Location, client, notes, deploy timing, tasks, documents, and site status all belong here. That is important operational context, but it would clutter the controller app.</div></li>
-            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Useful beyond runtime telemetry</strong><br>The dashboard is where you manage installation work, deployment readiness, and project history around a portal, not just the live controls for the hardware itself.</div></li>
-            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Extensible to client-facing views</strong><br>The same separation that creates a portal-team view is what later makes scoped client access realistic.</div></li>
-            <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Project context persists across the lifecycle</strong><br>Install notes, deployment history, and task state survive beyond the current session — the next person to touch this portal inherits the full picture.</div></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer"><span>Fleet view and project view belong to the same product, not separate tools.</span><span>13</span></div>
-    </section>
-
-    <!-- SLIDE 13 - MONITORING + ALERTS -->
-    <section class="slide slide-preview" data-slide="alerts">
-      <div class="preview-layout">
-        <div class="preview-phone">
-          <div class="phone-frame-large"><img src="assets/alerts-telegram.jpeg" alt="Telegram alerts from Portal 5" /></div>
-          <div class="preview-tab-label">Telegram alerts</div>
-        </div>
-        <div class="preview-callouts">
-          <div class="preview-header">
-            <div class="kicker">Monitoring</div>
-            <h2>The monitoring loop closes before a human opens Splashtop.</h2>
-          </div>
-          <ul class="callout-list">
-            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#fb7185"></span><div><strong>Actionable alerts, not generic pings</strong><br>Blank/unblank transitions, watchdog reboots, thermal transitions, and NovaStar state changes arrive with probable causes and uptime context attached.</div></li>
-            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Operator workflow lives in chat</strong><br>The person on duty sees the incident where they are already working, can jump straight into Scope, and can coordinate without translating raw logs for everyone else.</div></li>
-            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Recovery updates land in the same thread</strong><br>When the screen unblanks, thermals recover, or automation restarts Video Window, the alert stream shows that too. It becomes a narrative, not a mystery.</div></li>
-            <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Escalation stays lightweight</strong><br>For routine faults, the next step is obvious. For novel ones, the same alert thread becomes the handoff into deeper diagnosis and intervention.</div></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer"><span>Monitoring is only useful if it reaches the operator with enough context to act.</span><span>14</span></div>
-    </section>
-
-
-    <!-- SLIDE 16 - COMPARISON -->
-<section class="slide">
-  <div>
-    <div class="kicker">Side by side</div>
-    <h2><span class="scope-brand">Scope</span> vs the Video Window proposal.</h2>
-  </div>
-  <div class="comparison">
-    <div class="card">
-      <h3>Video Window: €500/portal/month</h3>
-      <ul>
-        <li class="warn">PC setup = install VW, set correct display output</li>
-        <li class="warn">Monitoring = someone logs into Splashtop and looks</li>
-        <li class="warn">Problems detected when the daily check happens, or when a visitor reports it</li>
-        <li class="warn">Zero visibility into LED processor, Controllino, UPS, AC, or internet connectivity</li>
-        <li class="bad">The network stays dependent on manual checks and external support, without building a richer operational capability over time.</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Augmentl <span class="scope-brand">Scope</span>: €500/portal/month</h3>
-      <ul>
-        <li class="good">Problems surface as alerts, responded to in <strong class="good-emph">minutes</strong>, not at the next check</li>
-        <li class="good"><strong class="good-emph">Automated recovery paths.</strong> Some faults resolve without human intervention.</li>
-        <li class="good">Structured telemetry history. Recurring fault patterns visible across time, not just in the moment.</li>
-        <li class="good">Full-stack: PC, LED, Controllino, UPS, AC, WAN, cameras. All layers, one view.</li>
-        <li class="good"><strong class="good-emph-alt">Begins encoding operational knowledge into the tool.</strong> Alerts can reach more than one person, and automated recovery reduces single-person dependency.</li>
-      </ul>
-    </div>
-  </div>
-  <div class="callout" style="margin-top:8px;">
-    Video Window tells you something failed, after someone notices. <span class="scope-brand">Scope</span> can know something failed, and in some cases fix it before anyone notices.
-  </div>
-  <div class="footer"><span>Same cost. One is reactive at best. The other is proactive by design.</span><span>15</span></div>
-</section>
-
     <!-- SLIDES 11-18 - APP PREVIEW: one slide per tab, in live app order -->
 
 <!-- SLIDE 8 - OVERVIEW TAB -->
@@ -1766,11 +2086,10 @@
         <h2>Live status at a glance.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Live stream + operator display</strong><br>Both camera feeds update on demand. See exactly what the kiosk and operator are seeing right now.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Stream health monitoring</strong><br>VW running state, display live/blank, stream freeze detection, auto-blank logic. All in one status block.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Full system telemetry</strong><br>CPU, RAM, disk, temps, uptime, VW state, LED brightness, presence state. Single panel, no PC remote session required.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>WAN + power at a glance</strong><br>Internet state, latency, 30-day uptime, UPS power mode, Tailscale status.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>One-tap recovery actions</strong><br>Restart VW, reboot PC, force screenshot refresh. Scoped controls with confirmation.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Live stream + operator display</strong><br>Both feeds refresh on demand, so the operator can see what the kiosk is actually doing.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Stream health in one status block</strong><br>VW state, display live/blank, freeze detection, and auto-blank logic sit together.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>System telemetry without a remote desktop</strong><br>CPU, RAM, disk, temps, uptime, LED brightness, and presence state are visible in one panel.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Scoped recovery actions</strong><br>Restart VW, reboot the PC, or refresh screenshots without dropping into a PC session.</div></li>
       </ul>
     </div>
   </div>
@@ -1787,13 +2106,13 @@
     <div class="preview-callouts">
       <div class="preview-header">
         <div class="kicker">Tab 2 / 8</div>
-        <h2>Camera setup and monitoring, built into the controller.</h2>
+        <h2>The remote portal view, plus the tools to tune it properly.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Live camera preview</strong><br>Stream the kiosk camera directly in the app. Verify framing, exposure, and image quality from anywhere.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Exposure and white balance</strong><br>Adjust brightness, contrast, saturation, WB mode, all via VISCA over the portal bridge. No physical access needed.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Virtual tilt and lens correction</strong><br>Software tilt and lens correction applied at the source. Adjust the field of view remotely after commissioning.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Presence detection tuning</strong><br>Adjust presence detection thresholds and see real-time occupancy state.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>See the view the other side actually gets</strong><br>Check the captured portal view directly in the app, including the cropped circular framing rather than a misleading raw camera feed.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Check framing and interaction</strong><br>Use the live view to confirm the composition is right and to see whether people are actually engaging with the portal.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Virtual pan, tilt, and lens correction</strong><br>Adjust the framing remotely so the captured view matches what the remote portal should see.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Useful in live client setup</strong><br>In Brazil, this made it easy to show the client the exact remote-side view instead of trying to explain it with the wrong aspect ratio.</div></li>
         
       </ul>
     </div>
@@ -1814,11 +2133,10 @@
         <h2>Full LED display control.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>NovaStar brightness control</strong><br>Direct TCP command to the VX400. Set brightness 0–100%, blank, and unblank directly from the controller without NovaCT or Windows.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Auto-brightness modes</strong><br>Manual, time-of-day schedule, or live solar irradiance via weather API. All configurable per portal.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#fb7185"></span><div><strong>Thermal override logic</strong><br>Automatic brightness reduction when panel temperatures exceed safe thresholds. Protects the LED at every site.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Panel temperature map</strong><br>Per-panel temp grid from NovaStar telemetry. Spot hotspots before they become failures.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Brightness reasoning log</strong><br>See exactly why the current brightness was set: source, logic, override reason, last change time.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>NovaStar brightness control</strong><br>Set brightness, blank, and unblank directly from the controller without NovaCT or Windows.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Auto-brightness modes</strong><br>Manual, scheduled, or weather-driven brightness is configurable per portal.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#fb7185"></span><div><strong>Thermal override logic</strong><br>Brightness drops automatically when panel temperatures move outside safe ranges.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Panel temperature map</strong><br>Per-panel telemetry makes hotspots visible before they become failures.</div></li>
       </ul>
     </div>
   </div>
@@ -1838,11 +2156,10 @@
         <h2>Deep hardware visibility.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Controllino system state</strong><br>Firmware version, uptime, loop timing, heartbeat interval, boot reason, watchdog resets. The full embedded controller picture.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>AC unit monitoring</strong><br>Controllino → Modbus → probe temps, alarm states, compressor state per AC unit in the cabinet.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>WAN failover history</strong><br>Peplink dual-WAN with live path state. See which link is active, latency per path, and recent failover events.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>UPS state</strong><br>Bicker supercap charge state and power input. Know before the site loses mains whether the backup is ready.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Power + reboot controls</strong><br>Controlled PC shutdown, hardware reboot via Controllino relay. No physical access required.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Controllino system state</strong><br>Firmware version, uptime, heartbeat, boot reason, and watchdog resets stay visible.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>AC unit monitoring</strong><br>Probe temps, alarm states, and compressor status are exposed directly from the cabinet controls.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>WAN failover history</strong><br>See which path is active, current latency, and whether failover has happened recently.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>UPS state</strong><br>Know whether backup power is charged and ready before the site loses mains.</div></li>
       </ul>
     </div>
   </div>
@@ -1862,11 +2179,10 @@
         <h2>Power, UPS state, and operating cost in one tab.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>UPS + supercap readiness</strong><br>Input/output voltage, AC presence, charging state, and available ride-through are visible without walking to the cabinet.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Live mains vs LED draw</strong><br>Input and LED screen channels are broken out separately, so abnormal draw is obvious immediately.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Operational cost estimator</strong><br>Daily, monthly, and yearly run-cost projections are built into the controller instead of hidden in a spreadsheet.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Carbon + geography aware</strong><br>Country-specific CO₂ factors make energy usage legible to non-technical stakeholders too.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Cumulative totals</strong><br>Server-side accumulation turns momentary power into a long-term operational ledger.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>UPS + supercap readiness</strong><br>Input/output voltage, AC presence, charging state, and ride-through are visible without opening the cabinet.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Live mains vs LED draw</strong><br>Input and LED channels are split, so abnormal draw is obvious immediately.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Operational cost estimator</strong><br>Daily, monthly, and yearly run-cost projections live in the controller instead of a spreadsheet.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Cumulative totals</strong><br>Server-side accumulation turns momentary power into a long-term operating ledger.</div></li>
       </ul>
     </div>
   </div>
@@ -1886,11 +2202,10 @@
         <h2>An operational timeline, not a mystery.</h2>
       </div>
       <ul class="callout-list">
-        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Newest-first incident history</strong><br>Thermal alerts, blanking events, reboots, WAN failovers, and stream-health actions land in one chronological trail.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Recovery visible in context</strong><br>Auto-blank, auto-restart, and unblank actions are shown alongside the fault that triggered them.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Color-coded event types</strong><br>Screen, thermal, WAN, reboot, AC, and PC state changes are visually separated so the pattern reads at a glance.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Portal-local and Berlin time</strong><br>Operations can read the event history in the site timezone and HQ timezone simultaneously.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Root-cause breadcrumbs</strong><br>When something goes wrong, the first diagnostic pass is already in the log instead of living in one person's memory.</div></li>
+        <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Newest-first incident history</strong><br>Thermal alerts, blanking events, reboots, WAN failovers, and stream actions land in one timeline.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Recovery visible in context</strong><br>Auto-blank, auto-restart, and unblank actions sit beside the fault that triggered them.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Color-coded event types</strong><br>Screen, thermal, WAN, reboot, AC, and PC state changes read at a glance.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Root-cause breadcrumbs</strong><br>The first diagnostic pass is already in the log instead of trapped in one person's memory.</div></li>
       </ul>
     </div>
   </div>
@@ -1913,8 +2228,7 @@
         <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Latest, 7d, and 30d actual uptime</strong><br>Healthy stream, live screen, and fresh telemetry are rolled into a metric that matches what the audience experiences.</div></li>
         <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Breakdown by failure mode</strong><br>Screen blank, stream bad, degraded hours, and heartbeat stale are called out explicitly instead of buried in a single number.</div></li>
         <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Daily rollup history</strong><br>A 30-day bar history makes recurring weak spots obvious across time, not just during today's incident.</div></li>
-        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Raw process uptime still visible</strong><br>The controller keeps cumulative VW uptime in view, but no longer confuses it with whether the artwork was actually live.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Network-scale reporting base</strong><br>This is the first tab that can support network-wide reliability reporting without manual interpretation.</div></li>
+        <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Raw process uptime still visible</strong><br>The controller keeps cumulative VW uptime in view, but no longer confuses it with whether the artwork was actually live. This is already answering a real Portals question in a measurable way.</div></li>
       </ul>
     </div>
   </div>
@@ -1935,14 +2249,246 @@
       </div>
       <ul class="callout-list">
         <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Portal naming and screenshot cadence</strong><br>Operational polish lives in the app, not in ad-hoc config files and remembered commands.</div></li>
-        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Refreshable system inventory</strong><br>CPU, GPU, RAM, disk, OS, kernel, tailscale IP, and uptime are available in one place for support handoff.</div></li>
-        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Hardware identity at a glance</strong><br>Board model, serial, and storage details make remote diagnostics faster before deeper support is needed.</div></li>
+        <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Refreshable system inventory</strong><br>CPU, GPU, RAM, disk, OS, kernel, tailscale IP, and uptime are available in one place for handoff.</div></li>
+        <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Hardware identity at a glance</strong><br>Board model, serial, and storage details make remote diagnostics faster.</div></li>
         <li class="callout-item" style="--d:0.85s"><span class="callout-dot" style="--c:#fb923c"></span><div><strong>Safer support workflow</strong><br>Routine changes stay scoped to the controller instead of inviting shell access for every minor task.</div></li>
-        <li class="callout-item" style="--d:1.1s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Operational ownership</strong><br>The team can understand what hardware is deployed and how it is configured without depending on a single operator's notes.</div></li>
       </ul>
     </div>
   </div>
   <div class="footer"><span>Live from Portal 5, Barra Grande, Brazil</span><span>23</span></div>
+</section>
+
+
+
+
+    <!-- SLIDE 6 - ALREADY IN USE -->
+    <section class="slide">
+      <div>
+        <div class="kicker">Already in use</div>
+        <h2>This is already useful in real operations. The question is whether to formalise and extend it.</h2>
+        <p class="lead">Portal 5 is the live proving ground. The system is already being used to see faults earlier and act faster.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="card">
+          <h3>Live on a real portal</h3>
+          <p>Controller, dashboard, alerts, and operating logic are already running against a live installation.</p>
+        </div>
+        <div class="card">
+          <h3>Already solving real operator problems</h3>
+          <p>It already answers operator questions like “is the portal actually live?” with measurable evidence.</p>
+        </div>
+        <div class="card">
+          <h3>Past the invention stage</h3>
+          <p>This pitch is about formalising and extending the system, not deciding whether it should exist.</p>
+        </div>
+      </div>
+      <div class="footer"><span>The capability already exists. The decision is how far to take it.</span><span>6</span></div>
+    </section>
+
+    <!-- SLIDE 9 - DASHBOARD INTRO -->
+    <section class="slide">
+      <div>
+        <div class="kicker">Dashboard layer</div>
+        <h2>The dashboard is the fleet and project layer around the controller.</h2>
+      </div>
+      <div class="workflow-grid">
+        <div class="workflow-card">
+          <div class="workflow-step">Layer 01 · fleet</div>
+          <h3>See the network at once</h3>
+          <p>See where attention is needed across the network.</p>
+        </div>
+        <div class="workflow-card">
+          <div class="workflow-step">Layer 02 · project</div>
+          <h3>Carry install context</h3>
+          <p>Tasks, rollout timing, documents, and install notes belong here, not in the controller.</p>
+        </div>
+        <div class="workflow-card">
+          <div class="workflow-step">Layer 03 · team</div>
+          <h3>Different views for different operators</h3>
+          <p>Augmentl can use the full workspace. Portals can get a narrower view of the same system.</p>
+        </div>
+        <div class="workflow-card">
+          <div class="workflow-step">Layer 04 · product</div>
+          <h3>One system, multiple surfaces</h3>
+          <p>One shared system can expose the controller, the fleet dashboard, and narrower views when needed.</p>
+        </div>
+      </div>
+      <div class="footer"><span>The controller acts on one installation. The dashboard makes the wider system operable.</span><span>10</span></div>
+    </section>
+
+    <!-- SLIDE 10 - AUGMENTL DASHBOARD -->
+    <section class="slide slide-preview" data-slide="dashboard-fleet">
+      <div class="preview-layout wide">
+        <div class="preview-phone">
+          <div class="preview-dashboard-frame contain" data-live-dashboard-path="/" data-dashboard-role="primary"><img src="assets/dashboard-ops-attached.png" alt="Augmentl Dashboard operations view" /></div>
+          <div class="dashboard-caption">Augmentl Dashboard · operations view across portals, projects, tasks, calendar, and inbox</div>
+        </div>
+        <div class="preview-callouts">
+          <div class="preview-header">
+            <div class="kicker">Dashboard layer</div>
+            <h2>The Augmentl Dashboard is the fleet and operations layer around every portal.</h2>
+          </div>
+          <ul class="callout-list">
+            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Fleet view, not single-portal view</strong><br>The controller explains one installation. The dashboard shows where attention is needed across the network.</div></li>
+            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Operations layer around the portals</strong><br>Projects, tasks, calendar, inbox, and portal status sit around the runtime layer.</div></li>
+            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Shared system, narrower views when needed</strong><br>Augmentl can use the broader workspace while Portals gets a cleaner portals-only surface from the same product.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>Fleet awareness, project context, and operations planning in one surface.</span><span>11</span></div>
+    </section>
+
+    <!-- SLIDE 11 - PORTALS-ONLY DASHBOARD -->
+    <section class="slide slide-preview" data-slide="dashboard-portals">
+      <div class="preview-layout wide">
+        <div class="preview-phone">
+          <div class="preview-dashboard-frame contain" data-live-dashboard-path="/portals"><img src="assets/dashboard-portals-attached.png" alt="Portals-only dashboard view" /></div>
+          <div class="dashboard-caption">Portal-team-specific dashboard variant · portals-only network view</div>
+        </div>
+        <div class="preview-callouts">
+          <div class="preview-header">
+            <div class="kicker">Portals-only variant</div>
+            <h2>The same system can expose a dedicated portals dashboard without the rest of the Augmentl workspace.</h2>
+          </div>
+          <ul class="callout-list">
+            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Only the portal network surface</strong><br>Status, pairings, uptime, offline nodes, and live visual state can sit in one portal-team view.</div></li>
+            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Useful for shared operations</strong><br>Portals gets a clean network surface without broader project, inbox, or internal coordination layers.</div></li>
+            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#a78bfa"></span><div><strong>Same backend, narrower front-end</strong><br>The point is not another product. It is a tighter view of the same system.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>A portal-team dashboard can be a narrower view of the same system, not a separate tool.</span><span>12</span></div>
+    </section>
+
+    <!-- SLIDE 12 - PROJECT WORKSPACES -->
+    <section class="slide slide-preview" data-slide="dashboard-projects">
+      <div class="preview-layout wide">
+        <div class="preview-phone">
+          <div class="preview-dashboard-frame contain" data-live-dashboard-path="/installations/d6d9d155-7f82-4647-8ce7-42dab602b644"><img src="assets/dashboard-project-attached.png" alt="Portal project page inside the dashboard" /></div>
+          <div class="dashboard-caption">Portal project page · install context, notes, tasks, docs, and monitoring in one place</div>
+        </div>
+        <div class="preview-callouts">
+          <div class="preview-header">
+            <div class="kicker">Project-specific dashboard view</div>
+            <h2>The dashboard adds project and install context that the controller app should not have to carry.</h2>
+          </div>
+          <ul class="callout-list">
+            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Project and install context</strong><br>Location, notes, deployment timing, tasks, and documents belong here, not in the controller UI.</div></li>
+            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Useful beyond runtime telemetry</strong><br>The dashboard is where installation work, readiness, and project history stay attached to the portal.</div></li>
+            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#facc15"></span><div><strong>Context survives the current session</strong><br>The next operator inherits install notes, deployment history, and task state instead of starting from memory.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>Fleet view and project view belong to the same product, not separate tools.</span><span>13</span></div>
+    </section>
+
+    <!-- SLIDE 13 - MONITORING + ALERTS -->
+    <section class="slide slide-preview" data-slide="alerts">
+      <div class="preview-layout">
+        <div class="preview-phone">
+          <div class="phone-frame-large"><img src="assets/alerts-telegram.jpeg" alt="Telegram alerts from Portal 5" /></div>
+          <div class="preview-tab-label">Telegram alerts</div>
+        </div>
+        <div class="preview-callouts">
+          <div class="preview-header">
+            <div class="kicker">Monitoring</div>
+            <h2>The monitoring loop closes before a human opens Splashtop.</h2>
+          </div>
+          <ul class="callout-list">
+            <li class="callout-item" style="--d:0.1s"><span class="callout-dot" style="--c:#fb7185"></span><div><strong>Actionable alerts, not generic pings</strong><br>Operators get probable cause and uptime context, not just a red light.</div></li>
+            <li class="callout-item" style="--d:0.35s"><span class="callout-dot" style="--c:#7dd3fc"></span><div><strong>Operator workflow stays in chat</strong><br>The incident shows up where the operator already works and links straight into Scope.</div></li>
+            <li class="callout-item" style="--d:0.6s"><span class="callout-dot" style="--c:#4ade80"></span><div><strong>Recovery updates land in the same thread</strong><br>The alert stream becomes a visible incident narrative, not a mystery.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>Monitoring is only useful if it reaches the operator with enough context to act.</span><span>14</span></div>
+    </section>
+
+    <!-- SLIDE 14 - THE FULL PICTURE -->
+    <section class="slide slide-centered-stage">
+      <div>
+        <div class="kicker">The full picture</div>
+        <h2>The product is the connection between controller, dashboard, and alerts.</h2>
+        <p class="lead">Not one of these surfaces in isolation, but the fact that they form one operational picture that retains context and compounds over time.</p>
+      </div>
+      <div class="feature-grid centered">
+        <div class="card">
+          <h3>Controller</h3>
+          <p>Deep, per-portal visibility and action where an operator can actually diagnose and intervene.</p>
+        </div>
+        <div class="card">
+          <h3>Dashboard</h3>
+          <p>Fleet awareness, project context, and the coordination layer around each installation.</p>
+        </div>
+        <div class="card">
+          <h3>Alerts</h3>
+          <p>Context-rich monitoring that reaches the operator early enough to change the outcome.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:18px;">The product is the loop across all three surfaces: <strong>see, understand, act, and keep the learning.</strong></div>
+      <div class="footer"><span>The value is the connected operating system, not any single screen on its own.</span><span>15</span></div>
+    </section>
+
+
+    <!-- SLIDE 11 - WHAT IT BUYS THE NETWORK -->
+    <section class="slide">
+      <div>
+        <div class="kicker">Why this matters</div>
+        <h2>Why adopting <span class="scope-brand">Scope</span> is strategically stronger for Portals.</h2>
+      </div>
+      <div class="cols equal">
+        <div class="card">
+          <h3>For Portals operationally</h3>
+          <ul>
+            <li>Faster diagnosis when a portal goes dark</li>
+            <li>Fewer blind recovery attempts and fewer avoidable site visits</li>
+            <li>More confident remote support without relying on local staff to interpret faults</li>
+            <li>A stronger operational baseline for legacy portals, current portals, and future portals</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>For Portals strategically</h3>
+          <ul>
+            <li>Portals gains a purpose-built operational stack from the partner already helping run the network, rather than a narrower off-the-shelf capability</li>
+            <li>Video Window can stay in a narrower playback and first-line support role without inheriting the whole operating layer or getting the Scope/IP value for free</li>
+            <li>The network gains a technical backbone instead of another stitched tool, with clearer governance over who owns product direction and who operates which layer</li>
+            <li>Portals can adopt it for its own network while Augmentl continues developing the underlying product and IP</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>Reactive in minutes. Proactive by design. Automated where possible.</span><span>27</span></div>
+    </section>
+
+    <!-- SLIDE 16 - COMPARISON -->
+<section class="slide commercial-slide">
+  <div>
+    <div class="kicker">Commercial framing</div>
+    <h2>What changes when Portals funds a dedicated operating layer.</h2>
+  </div>
+  <div class="comparison">
+    <div class="card">
+      <h3>Current baseline: manual support around Video Window</h3>
+      <ul>
+        <li class="warn">PC support still starts with checking the AV app manually.</li>
+        <li class="warn">Monitoring still depends on someone opening Splashtop and looking.</li>
+        <li class="warn">Problems surface at the next check, or when a visitor reports them.</li>
+        <li class="bad">The network stays reactive and person-dependent instead of getting easier to operate.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>With Augmentl <span class="scope-brand">Scope</span>: €500/portal/month</h3>
+      <ul>
+        <li class="good">Problems surface as alerts and get a response in <strong class="good-emph">minutes</strong>, not at the next manual check.</li>
+        <li class="good"><strong class="good-emph-alt">Separate operating layer, not overflow support.</strong> The fee funds telemetry, uptime reporting, alerting, and recovery logic as a product, not as extra hours inside a general retainer.</li>
+        <li class="good"><strong class="good-emph">Automated recovery paths.</strong> Some faults resolve without human intervention.</li>
+        <li class="good"><strong class="good-emph-alt">Operational knowledge moves into the tool.</strong> Alerts, playbooks, and recovery logic become shared infrastructure, reducing key-person risk structurally.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:8px;">
+    Video Window can stay in playback and first-line support. <span class="scope-brand">Scope</span> owns the wider operating layer, so the €500/month belongs with Augmentl rather than expanding Video Window's remit.
+  </div>
+  <div class="footer"><span>Same cost. One is reactive at best. The other is proactive by design.</span><span>15</span></div>
 </section>
 
 <!-- SLIDE 16 - NETWORK GROWTH VISION -->
@@ -1950,7 +2496,7 @@
   <div>
     <div class="kicker">Growth vision</div>
     <h2>From reactive portal support to a reproducible operating network.</h2>
-    <p class="lead">The product story is not just deeper controls. It is a staged shift from one-person recovery work toward a fleet that can be deployed, monitored, updated, and expanded systematically.</p>
+    <p class="lead">This is a staged shift from one-person recovery work toward a fleet that can be deployed, monitored, updated, and expanded systematically.</p>
   </div>
   <div class="growth-vision">
     <div class="growth-stages">
@@ -1960,8 +2506,7 @@
         <h3>Fragile, reactive operations</h3>
         <ul>
           <li>Operational knowledge lives mostly in one person’s head.</li>
-          <li>Remote support relies on Splashtop, guesswork, and ad-hoc recovery paths.</li>
-          <li>Every new portal increases support load faster than the system improves.</li>
+          <li>Remote support still leans on Splashtop, guesswork, and ad-hoc recovery.</li>
         </ul>
       </div>
       <div class="growth-stage is-next">
@@ -1969,8 +2514,7 @@
         <div class="kicker-mini">Scope now</div>
         <h3>One portal, fully legible</h3>
         <ul>
-          <li>Per-portal telemetry, screenshots, alerts, and controls live in one operating surface.</li>
-          <li>The controller becomes the first real model of what a healthy installation looks like.</li>
+          <li>Telemetry, screenshots, alerts, and controls live in one operating surface.</li>
           <li>Incidents become diagnosable instead of anecdotal.</li>
         </ul>
       </div>
@@ -1980,8 +2524,7 @@
         <h3>Fleet operations start to scale</h3>
         <ul>
           <li>Dashboard, incident history, uptime reporting, and rollout planning connect multiple sites.</li>
-          <li>Teams can operate the network together instead of escalating everything to the original builder.</li>
-          <li>NixOS turns the portal PC into a reproducible deployment target with declarative config, safer updates, and rollback.</li>
+          <li>NixOS makes the portal PC a reproducible deployment target with safer updates and rollback.</li>
         </ul>
       </div>
       <div class="growth-stage is-ideal">
@@ -1989,8 +2532,7 @@
         <div class="kicker-mini">Ideal state</div>
         <h3>A managed installation network</h3>
         <ul>
-          <li>New portals inherit a standard runtime, standard telemetry, and standard operating playbooks.</li>
-          <li>Client-facing views, team workspaces, and network-wide reporting sit on the same data model.</li>
+          <li>New portals inherit a standard runtime, telemetry layer, and operating playbooks.</li>
           <li>Deployment growth increases coverage and reliability, not operational chaos.</li>
         </ul>
       </div>
@@ -2007,7 +2549,7 @@
       </div>
       <div class="growth-note">
         <div class="kicker-mini">Where NixOS fits</div>
-        <p><span class="scope-brand">NixOS</span> is not the product by itself; it is the infrastructure discipline that makes the product scale. It gives the portal-side runtime a declarative, versioned base so updates, hardware identity, services, and rollback become predictable across many installations rather than bespoke per-machine.</p>
+        <p><span class="scope-brand">NixOS</span> is not the product by itself; it is the deployment discipline that lets the portal runtime stay declarative, versioned, and rollback-capable across many installations.</p>
       </div>
     </div>
   </div>
@@ -2072,7 +2614,7 @@
         </div>
         <div class="card">
           <h3>Authenticated controller access</h3>
-          <p>The <span class="scope-brand">Scope</span> Controller requires authentication before any portal is accessible. Per-portal command permissions can be scoped per user.</p>
+          <p>The <span class="scope-brand">Scope</span> Controller requires authentication before any portal is accessible. Per-portal command permissions can be scoped per user, so Portals can decide who sees what and who can act.</p>
         </div>
         <div class="card">
           <h3>Deployment-chosen infrastructure</h3>
@@ -2082,50 +2624,22 @@
       <div class="footer"><span>Hosting and access can be agreed to fit the deployment, rather than dictated by a vendor.</span><span>26</span></div>
     </section>
 
-    <!-- SLIDE 11 - WHAT IT BUYS THE NETWORK -->
-    <section class="slide">
-      <div>
-        <div class="kicker">Why this matters</div>
-        <h2>Why adopting <span class="scope-brand">Scope</span> is strategically stronger for Portals.</h2>
-      </div>
-      <div class="cols equal">
-        <div class="card">
-          <h3>For Portals operationally</h3>
-          <ul>
-            <li>Faster diagnosis when a portal goes dark</li>
-            <li>Fewer blind recovery attempts and fewer avoidable site visits</li>
-            <li>More confident remote support without relying on local staff to interpret faults</li>
-            <li>A stronger operational baseline for legacy portals, current portals, and future portals</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>For Portals strategically</h3>
-          <ul>
-            <li>Portals gains a purpose-built operational stack from the partner already helping run the network, rather than a narrower off-the-shelf capability</li>
-            <li>The network gains a technical backbone instead of another stitched tool</li>
-            <li>Portals can adopt it for its own network while Augmentl continues developing the underlying product and IP</li>
-            <li>That matters because the product can keep improving across portals, future portals, and non-portal installations too</li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer"><span>Reactive in minutes. Proactive by design. Automated where possible.</span><span>27</span></div>
-    </section>
-
     <!-- SLIDE 12 - THE ASK -->
     <section class="slide slide-centered-stage ask-slide">
       <div>
         <div class="kicker">The ask</div>
-        <h2>Adopt <span class="scope-brand">Scope</span> for the portal network as a shared operational platform, developed and operated in partnership.</h2>
+        <h2>Adopt <span class="scope-brand">Scope</span> as the portal network's shared operating layer, developed in partnership.</h2>
       </div>
       <div class="card" style="max-width:1150px;">
-        <p style="font-size:22px;line-height:1.5;">The proposal is the same commercial level as Video Window: <strong>€500 per portal per month ongoing</strong>. In return, <span class="scope-brand">Scope</span> becomes the support, commissioning, monitoring, and continuous-improvement layer for the portal fleet, with the implementation and hosting model agreed to fit Portals' needs.</p>
+        <p style="font-size:20px;line-height:1.42;"><strong>€500 per portal per month ongoing.</strong> That is the same budget level Portals was already prepared to allocate. In return, <span class="scope-brand">Scope</span> becomes the monitoring, commissioning, uptime-reporting, and continuous-improvement layer for the fleet.</p>
         <ul style="padding-left:22px;">
-          <li>Formalise <span class="scope-brand">Scope</span> as a shared operational capability for the portal network, with roadmap, rollout plan, and clear technical ownership</li>
-          <li>Agree the operating model: who hosts what, who manages access, and which layers stay portal-owned versus partner-managed</li>
-          <li>Use the ongoing fee to fund continued product development, monitoring, and support as part of the contracted scope</li>
+          <li>Formalise <span class="scope-brand">Scope</span> as a separate operating capability for the portal network, with a roadmap and rollout plan.</li>
+          <li>Agree the operating model: hosting, access, portal-owned versus partner-managed layers, and where Video Window stays in a narrower playback/support role.</li>
+          <li>Fund ongoing product development, monitoring, and support on a separate operating budget instead of folding it into the existing monthly arrangement.</li>
         </ul>
-        <p style="margin-top:22px;font-size:22px;"><strong>Bottom line.</strong> Portals was already prepared to fund an ongoing operating layer. The stronger move is to direct that spend into a system that already understands the installations and has a clear incentive to keep improving them proactively.</p>
-        <p style="margin-top:18px;font-size:18px;color:var(--accent);border-top:1px solid var(--line);padding-top:18px;"><strong>First step:</strong> Agree a pilot rollout plan, governance model, and the €500 per portal per month ongoing commercial structure, then expand <span class="scope-brand">Scope</span> across the fleet as the basis for future portals and wider installation work.</p>
+        <p style="margin-top:18px;font-size:20px;"><strong>Bottom line.</strong> If Portals is funding an operating layer, fund the one already built from the real installations and incentivised to keep hardening them.</p>
+        <p style="margin-top:14px;font-size:16px;color:var(--accent);border-top:1px solid var(--line);padding-top:14px;"><strong>First step:</strong> Agree pilot, governance, and €500 per portal per month, then expand deliberately.</p>
+        <p style="margin-top:8px;font-size:14px;color:var(--muted);">If procurement needs another commercial shape, use a higher separate operating retainer — not the current fee.</p>
       </div>
       <div class="footer"><span>Adopt the platform in partnership, agree the operating model, and roll it out deliberately.</span><span>28</span></div>
     </section>
@@ -2205,11 +2719,13 @@
       var introFallbackImage = document.getElementById('intro-globe-static');
       var endFallbackImage = document.getElementById('end-globe-static');
       var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '100.82.235.72';
+      var params = new URLSearchParams(location.search);
+      var dashboardHost = params.get('dashboardHost') || '100.82.235.72';
       if (isLocal) {
         var f = document.getElementById('globe-frame');
         var introFrame = document.getElementById('intro-globe-frame');
         var endFrame = document.getElementById('end-globe-frame');
-        var src = 'http://' + location.hostname + ':3100/embed/globe';
+        var src = 'http://' + dashboardHost + ':3100/embed/globe';
         [
           { frame: introFrame, fallback: introFallbackImage },
           { frame: f, fallback: fallbackImage },
@@ -2242,19 +2758,505 @@
       var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '100.82.235.72';
       var params = new URLSearchParams(location.search);
       var enableLivePreviews = params.get('livePreviews') === '1';
+      var previewData = params.get('previewData') || 'live';
+      var previewPortal = params.get('previewPortal') || 'portal5';
+      var previewAutoscroll = params.get('previewAutoscroll') !== '0';
+      var controllerZoom = params.get('controllerZoom') || '0.84';
+      var controllerInset = params.get('controllerInset') || '14';
       if (!isLocal || !enableLivePreviews) return;
       document.querySelectorAll('.phone-frame-mobile[data-live-tab]').forEach(function(frame) {
         if (frame.querySelector('iframe')) return;
         var tab = frame.getAttribute('data-live-tab');
         if (!tab) return;
         var iframe = document.createElement('iframe');
+        var liveReady = false;
+        var iframeParams = new URLSearchParams();
+        if (previewData === 'fixture') iframeParams.set('fixture', 'example.portal5-full');
+        iframeParams.set('portal', previewPortal);
+        iframeParams.set('tab', tab);
+        iframeParams.set('embed', '1');
+        iframeParams.set('autoscroll', previewAutoscroll ? '1' : '0');
+        iframeParams.set('embedZoom', controllerZoom);
         iframe.setAttribute('scrolling', 'yes');
         iframe.setAttribute('title', 'Live Scope ' + tab + ' preview');
-        iframe.src = 'http://' + location.hostname + ':3203/v2/?fixture=example.portal5-full&portal=portal5&tab=' + encodeURIComponent(tab) + '&embed=1&autoscroll=1';
+        iframe.src = 'http://' + location.hostname + ':3203/v2/?' + iframeParams.toString();
+        frame.style.setProperty('--live-inset', controllerInset + 'px');
+
+        function revealLivePreview() {
+          if (liveReady) return;
+          liveReady = true;
+          frame.classList.add('is-live', 'is-live-ready');
+        }
+
+        function restoreStaticPreview() {
+          if (liveReady) return;
+          frame.classList.remove('is-live', 'is-live-ready');
+          if (iframe.parentNode === frame) iframe.remove();
+        }
+
+        iframe.addEventListener('load', revealLivePreview, { once: true });
+        iframe.addEventListener('error', restoreStaticPreview, { once: true });
         frame.appendChild(iframe);
-        frame.classList.add('is-live');
+        setTimeout(restoreStaticPreview, 5000);
       });
     }
+
+    function resolvePrimaryDashboardPath(route) {
+      if (route === 'globe') return '/embed/globe';
+      if (route === 'portals') return '/portals';
+      if (route === 'project') return '/installations/d6d9d155-7f82-4647-8ce7-42dab602b644';
+      return '/';
+    }
+
+    function initLocalLiveDashboardPreviews() {
+      var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '100.82.235.72';
+      var params = new URLSearchParams(location.search);
+      var enableLivePreviews = params.get('livePreviews') === '1';
+      var dashboardScaleDefault = params.get('dashboardScale') || '0.72';
+      var dashboardHost = params.get('dashboardHost') || '100.82.235.72';
+      var dashboardPrimaryRoute = params.get('dashboardPrimaryRoute') || 'home';
+      if (!isLocal || !enableLivePreviews) return;
+      document.querySelectorAll('.preview-dashboard-frame[data-live-dashboard-path]').forEach(function(frame) {
+        var path = frame.getAttribute('data-live-dashboard-path');
+        if (frame.getAttribute('data-dashboard-role') === 'primary') {
+          path = resolvePrimaryDashboardPath(dashboardPrimaryRoute);
+          frame.setAttribute('data-live-dashboard-path', path);
+        }
+        if (!path) return;
+        var iframe = frame.querySelector('iframe') || document.createElement('iframe');
+        var liveReady = false;
+        var scale = dashboardScaleDefault;
+        if (path === '/' || path === '/embed/globe') scale = params.get('dashboardScaleHome') || scale;
+        else if (path === '/portals') scale = params.get('dashboardScalePortals') || scale;
+        else scale = params.get('dashboardScaleProject') || scale;
+        var src = 'http://' + dashboardHost + ':3100' + path;
+        src += (path.indexOf('?') === -1 ? '?' : '&') + 'embed=1';
+        iframe.setAttribute('scrolling', 'yes');
+        iframe.setAttribute('title', 'Live dashboard preview ' + path);
+        iframe.src = src;
+        frame.style.setProperty('--dashboard-scale', scale);
+
+        function revealLivePreview() {
+          if (liveReady) return;
+          liveReady = true;
+          frame.classList.add('is-live-ready');
+        }
+
+        function restoreStaticPreview() {
+          if (liveReady) return;
+          frame.classList.remove('is-live-ready');
+          if (iframe.parentNode === frame) iframe.remove();
+        }
+
+        iframe.addEventListener('load', revealLivePreview, { once: true });
+        iframe.addEventListener('error', restoreStaticPreview, { once: true });
+        if (iframe.parentNode !== frame) frame.appendChild(iframe);
+        setTimeout(restoreStaticPreview, 12000);
+      });
+    }
+
+
+    function renumberSlideFooters() {
+      var nextNumber = 2;
+      document.querySelectorAll('.slide .footer').forEach(function(footer) {
+        var parts = footer.querySelectorAll('span');
+        if (!parts.length) return;
+        parts[parts.length - 1].textContent = String(nextNumber++);
+      });
+    }
+
+    function buildLivePreviewTuner() {
+      var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '100.82.235.72';
+      var params = new URLSearchParams(location.search);
+      if (!isLocal || params.get('livePreviews') !== '1') return;
+      if (document.getElementById('preview-tuner')) return;
+
+      var STORAGE_KEY = 'scopePreviewDefaults';
+      var hardDefaults = {
+        controllerZoom: '0.84',
+        controllerInset: '14',
+        controllerFrameHeight: '860',
+        dashboardScale: '0.72',
+        dashboardFrameWidth: '860',
+        dashboardPrimaryRoute: 'home'
+      };
+      var savedDefaults = {};
+      try {
+        savedDefaults = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
+      } catch (err) {
+        savedDefaults = {};
+      }
+      var state = Object.assign({}, hardDefaults, savedDefaults);
+      Object.keys(state).forEach(function(key) {
+        if (params.get(key) !== null) state[key] = params.get(key);
+      });
+
+      var tuner = document.createElement('aside');
+      tuner.id = 'preview-tuner';
+      tuner.className = 'preview-tuner';
+      tuner.setAttribute('aria-collapsed', 'true');
+      tuner.innerHTML = [
+        '<div class="preview-tuner-header">',
+          '<strong>Tools</strong>',
+          '<button type="button" class="preview-tuner-toggle" data-action="collapse" aria-label="Toggle tools">☰</button>',
+        '</div>',
+        '<div class="preview-tuner-body">',
+          '<section class="preview-tuner-section">',
+            '<h3>Controller previews</h3>',
+            '<div class="preview-tuner-row">',
+              '<label>Internal zoom <output data-output="controllerZoom"></output></label>',
+              '<input data-setting="controllerZoom" type="range" min="0.72" max="1.02" step="0.01" />',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<label>Frame inset <output data-output="controllerInset"></output></label>',
+              '<input data-setting="controllerInset" type="range" min="0" max="28" step="1" />',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<label>Frame height <output data-output="controllerFrameHeight"></output></label>',
+              '<input data-setting="controllerFrameHeight" type="range" min="720" max="980" step="10" />',
+            '</div>',
+          '</section>',
+          '<section class="preview-tuner-section">',
+            '<h3>Dashboard previews</h3>',
+            '<div class="preview-tuner-row">',
+              '<label>Primary route</label>',
+              '<select class="preview-tuner-select" data-setting="dashboardPrimaryRoute">',
+                '<option value="home">Desktop home</option>',
+                '<option value="globe">Globe only</option>',
+                '<option value="portals">Portals</option>',
+                '<option value="project">Project</option>',
+              '</select>',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<label>Content scale <output data-output="dashboardScale"></output></label>',
+              '<input data-setting="dashboardScale" type="range" min="0.45" max="0.90" step="0.01" />',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<label>Frame width <output data-output="dashboardFrameWidth"></output></label>',
+              '<input data-setting="dashboardFrameWidth" type="range" min="680" max="1480" step="10" />',
+            '</div>',
+          '</section>',
+          '<section class="preview-tuner-section">',
+            '<h3>Presentation tools</h3>',
+            '<div class="preview-tuner-row">',
+              '<label style="cursor:pointer;"><input type="checkbox" data-toggle="inline-copy-editing" style="accent-color:#38bdf8;margin-right:8px;" /> Edit copy directly on slides</label>',
+            '</div>',
+            '<div class="preview-tuner-row small" style="font-size:12px;color:var(--muted2);line-height:1.45;">Copy edits auto-save to this browser and persist after refresh.</div>',
+            '<div class="preview-tuner-row">',
+              '<button type="button" data-action="reset-current-copy" style="width:100%;">Reset current slide copy</button>',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<button type="button" data-action="clear-all-copy" style="width:100%;">Clear all saved copy edits</button>',
+            '</div>',
+            '<div class="preview-tuner-row">',
+              '<button type="button" data-action="open-notes" style="width:100%;">📝 Presenter Notes</button>',
+            '</div>',
+          '</section>',
+          '<div class="preview-tuner-actions">',
+            '<button type="button" data-action="copy-url">Copy tuned URL</button>',
+            '<button type="button" data-action="save-defaults">Save as defaults</button>',
+            '<button type="button" data-action="clear-defaults">Clear saved defaults</button>',
+            '<button type="button" data-action="reset">Reset session</button>',
+          '</div>',
+        '</div>'
+      ].join('');
+      document.body.appendChild(tuner);
+
+      function updateOutputs() {
+        Object.keys(state).forEach(function(key) {
+          var output = tuner.querySelector('[data-output="' + key + '"]');
+          if (!output) return;
+          var val = state[key];
+          if (key === 'controllerZoom' || key === 'dashboardScale') output.textContent = Number(val).toFixed(2);
+          else output.textContent = Math.round(Number(val)) + 'px';
+        });
+      }
+
+      function syncControls() {
+        Object.keys(state).forEach(function(key) {
+          var input = tuner.querySelector('[data-setting="' + key + '"]');
+          if (input) input.value = state[key];
+        });
+        updateOutputs();
+      }
+
+      function updateUrl() {
+        var next = new URL(window.location.href);
+        Object.keys(state).forEach(function(key) { next.searchParams.set(key, state[key]); });
+        window.history.replaceState({}, '', next.toString());
+      }
+
+      function applyFrameStyles() {
+        document.documentElement.style.setProperty('--controller-inset', Number(state.controllerInset) + 'px');
+        document.documentElement.style.setProperty('--controller-frame-height', 'min(' + Number(state.controllerFrameHeight) + 'px, calc(100vh - 104px))');
+        document.documentElement.style.setProperty('--dashboard-frame-width', Number(state.dashboardFrameWidth) + 'px');
+        document.documentElement.style.setProperty('--dashboard-scale', state.dashboardScale);
+      }
+
+      function reloadControllerIframes() {
+        document.querySelectorAll('.phone-frame-mobile iframe').forEach(function(iframe) {
+          var url = new URL(iframe.src);
+          url.searchParams.set('embedZoom', state.controllerZoom);
+          iframe.src = url.toString();
+        });
+      }
+
+      function reloadDashboardIframes() {
+        document.querySelectorAll('.preview-dashboard-frame').forEach(function(frame) {
+          frame.style.setProperty('--dashboard-scale', state.dashboardScale);
+          var path = frame.getAttribute('data-live-dashboard-path');
+          if (frame.getAttribute('data-dashboard-role') === 'primary') {
+            path = resolvePrimaryDashboardPath(state.dashboardPrimaryRoute);
+            frame.setAttribute('data-live-dashboard-path', path);
+          }
+          var iframe = frame.querySelector('iframe');
+          if (!iframe || !path) return;
+          var url = new URL(iframe.src);
+          url.pathname = path;
+          url.searchParams.set('embed', '1');
+          iframe.src = url.toString();
+        });
+      }
+
+      function setCollapsed(collapsed) {
+        tuner.setAttribute('aria-collapsed', collapsed ? 'true' : 'false');
+        var btn = tuner.querySelector('[data-action="collapse"]');
+        if (btn) btn.textContent = collapsed ? '☰' : '×';
+      }
+
+      syncControls();
+      applyFrameStyles();
+      reloadDashboardIframes();
+      updateUrl();
+      setCollapsed(true);
+
+      tuner.querySelectorAll('[data-setting]').forEach(function(input) {
+        input.addEventListener('input', function() {
+          state[input.getAttribute('data-setting')] = input.value;
+          applyFrameStyles();
+          updateOutputs();
+          updateUrl();
+          if (input.getAttribute('data-setting') === 'controllerZoom') reloadControllerIframes();
+          if (input.getAttribute('data-setting') === 'dashboardScale' || input.getAttribute('data-setting') === 'dashboardPrimaryRoute') reloadDashboardIframes();
+        });
+        input.addEventListener('change', function() {
+          state[input.getAttribute('data-setting')] = input.value;
+          applyFrameStyles();
+          updateOutputs();
+          updateUrl();
+          if (input.getAttribute('data-setting') === 'dashboardPrimaryRoute') reloadDashboardIframes();
+        });
+      });
+
+      tuner.addEventListener('click', function(event) {
+        var btn = event.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        if (action === 'collapse') {
+          setCollapsed(tuner.getAttribute('aria-collapsed') !== 'true');
+        } else if (action === 'reset') {
+          state = Object.assign({}, hardDefaults, savedDefaults);
+          syncControls();
+          applyFrameStyles();
+          reloadControllerIframes();
+          reloadDashboardIframes();
+          updateUrl();
+        } else if (action === 'copy-url') {
+          var url = window.location.href;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function() { btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy tuned URL'; }, 1000); });
+          }
+        } else if (action === 'save-defaults') {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          savedDefaults = Object.assign({}, state);
+          btn.textContent = 'Saved';
+          setTimeout(function(){ btn.textContent = 'Save as defaults'; }, 1000);
+        } else if (action === 'clear-defaults') {
+          localStorage.removeItem(STORAGE_KEY);
+          savedDefaults = {};
+          btn.textContent = 'Cleared';
+          setTimeout(function(){ btn.textContent = 'Clear saved defaults'; }, 1000);
+        } else if (action === 'reset-current-copy') {
+          if (window.resetCurrentSlideCopy) window.resetCurrentSlideCopy();
+          btn.textContent = 'Reset';
+          setTimeout(function(){ btn.textContent = 'Reset current slide copy'; }, 1000);
+        } else if (action === 'clear-all-copy') {
+          if (window.clearAllSavedCopyEdits) window.clearAllSavedCopyEdits();
+          btn.textContent = 'Cleared';
+          setTimeout(function(){ btn.textContent = 'Clear all saved copy edits'; }, 1000);
+        } else if (action === 'open-notes') {
+          if (window.__presenterNotesWindow && !window.__presenterNotesWindow.closed) {
+            window.__presenterNotesWindow.focus();
+          } else {
+            window.__presenterNotesWindow = window.open('presenter-notes.html', 'presenterNotes', 'width=1200,height=900');
+          }
+        }
+      });
+
+      tuner.addEventListener('change', function(event) {
+        var toggle = event.target.closest('[data-toggle]');
+        if (!toggle) return;
+        var feature = toggle.getAttribute('data-toggle');
+        if (feature === 'inline-copy-editing' && window.setInlineCopyEditingEnabled) {
+          window.setInlineCopyEditingEnabled(toggle.checked);
+        }
+      });
+    }
+
+    function ensurePreviewModal() {
+      var modal = document.getElementById('preview-modal');
+      if (modal) return modal;
+      modal = document.createElement('div');
+      modal.id = 'preview-modal';
+      modal.className = 'preview-modal';
+      modal.innerHTML = '<div class="preview-modal-panel"><button type="button" class="preview-modal-close" aria-label="Close fullscreen preview">×</button><div class="preview-modal-content"></div></div>';
+      modal.addEventListener('click', function(event) {
+        if (event.target === modal || event.target.closest('.preview-modal-close')) {
+          modal.classList.remove('is-open');
+          var content = modal.querySelector('.preview-modal-content');
+          if (content) content.innerHTML = '';
+        }
+      });
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    function initPreviewFullscreenButtons() {
+      ensurePreviewModal();
+      document.querySelectorAll('.phone-frame-large, .preview-dashboard-frame').forEach(function(frame) {
+        frame.classList.add('preview-target');
+        if (frame.querySelector('.preview-frame-action')) return;
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'preview-frame-action';
+        button.innerHTML = '⤢';
+        button.title = 'Open fullscreen preview';
+        button.setAttribute('aria-label', 'Open fullscreen preview');
+        button.addEventListener('click', function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var modal = ensurePreviewModal();
+          var content = modal.querySelector('.preview-modal-content');
+          if (!content) return;
+          content.innerHTML = '';
+          var iframe = frame.querySelector('iframe');
+          var image = frame.querySelector('img');
+          if (iframe && iframe.src) {
+            var fullIframe = document.createElement('iframe');
+            fullIframe.src = iframe.src;
+            fullIframe.setAttribute('allowfullscreen', 'true');
+            fullIframe.setAttribute('scrolling', 'yes');
+            content.appendChild(fullIframe);
+          } else if (image && image.src) {
+            var fullImage = document.createElement('img');
+            fullImage.src = image.src;
+            fullImage.alt = image.alt || '';
+            content.appendChild(fullImage);
+          }
+          modal.classList.add('is-open');
+        });
+        frame.appendChild(button);
+      });
+    }
+
+    function currentSlideElement() {
+      var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+      var mid = window.innerHeight / 2;
+      var bestSlide = slides[0] || null;
+      var bestDist = Infinity;
+      slides.forEach(function(slide) {
+        var rect = slide.getBoundingClientRect();
+        var center = rect.top + rect.height / 2;
+        var dist = Math.abs(center - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestSlide = slide;
+        }
+      });
+      return bestSlide;
+    }
+
+    function collectEditableElements(slide) {
+      var selector = '.kicker, .kicker-mini, h1, h2, h3, p, li, .dashboard-caption, .preview-tab-label, .callout, .growth-band-title, .footer span:first-child, a[href^="mailto:"]';
+      return Array.prototype.slice.call(slide.querySelectorAll(selector)).filter(function(el) {
+        if (el.closest('#preview-tuner') || el.classList.contains('preview-frame-action')) return false;
+        if (el.querySelector('button, input, textarea, select')) return false;
+        if (!(el.textContent || '').trim()) return false;
+        return true;
+      });
+    }
+
+    function initInlineCopyEditing() {
+      var COPY_STORAGE_KEY = 'scopeSlideCopyEdits';
+      var copyEdits = {};
+      try {
+        copyEdits = JSON.parse(localStorage.getItem(COPY_STORAGE_KEY) || '{}') || {};
+      } catch (err) {
+        copyEdits = {};
+      }
+
+      function saveEdits() {
+        localStorage.setItem(COPY_STORAGE_KEY, JSON.stringify(copyEdits));
+      }
+
+      function applySavedCopy() {
+        document.querySelectorAll('[data-copy-key]').forEach(function(el) {
+          var key = el.getAttribute('data-copy-key');
+          if (Object.prototype.hasOwnProperty.call(copyEdits, key)) {
+            el.innerHTML = copyEdits[key];
+          }
+        });
+      }
+
+      document.querySelectorAll('.slide').forEach(function(slide, slideIndex) {
+        collectEditableElements(slide).forEach(function(el, elementIndex) {
+          var key = slideIndex + ':' + elementIndex;
+          if (!el.hasAttribute('data-copy-key')) el.setAttribute('data-copy-key', key);
+          if (!el.hasAttribute('data-copy-editable')) el.setAttribute('data-copy-editable', 'true');
+          if (!el.dataset.copyOriginalHtml) el.dataset.copyOriginalHtml = el.innerHTML;
+          el.contentEditable = 'false';
+          el.spellcheck = false;
+          el.addEventListener('input', function() {
+            copyEdits[key] = el.innerHTML;
+            saveEdits();
+          });
+          el.addEventListener('blur', function() {
+            copyEdits[key] = el.innerHTML;
+            saveEdits();
+          });
+        });
+      });
+
+      applySavedCopy();
+
+      window.setInlineCopyEditingEnabled = function(enabled) {
+        document.body.classList.toggle('copy-edit-enabled', !!enabled);
+        document.querySelectorAll('[data-copy-editable="true"]').forEach(function(el) {
+          el.contentEditable = enabled ? 'true' : 'false';
+          el.spellcheck = !!enabled;
+        });
+      };
+
+      window.resetCurrentSlideCopy = function() {
+        var slide = currentSlideElement();
+        if (!slide) return;
+        collectEditableElements(slide).forEach(function(el) {
+          var key = el.getAttribute('data-copy-key');
+          el.innerHTML = el.dataset.copyOriginalHtml || el.innerHTML;
+          delete copyEdits[key];
+        });
+        saveEdits();
+      };
+
+      window.clearAllSavedCopyEdits = function() {
+        document.querySelectorAll('[data-copy-key]').forEach(function(el) {
+          el.innerHTML = el.dataset.copyOriginalHtml || el.innerHTML;
+        });
+        copyEdits = {};
+        localStorage.removeItem(COPY_STORAGE_KEY);
+      };
+    }
+
 
     function initLogoReplay() {
       if (window.__scopeLogoReplayInit) return;
@@ -2352,8 +3354,14 @@
           sessionStorage.setItem('scope-auth', TOKEN);
           overlay.remove();
           initGlobe();
+          renumberSlideFooters();
           initLocalLivePreviews();
+          initLocalLiveDashboardPreviews();
+          buildLivePreviewTuner();
+          initPreviewFullscreenButtons();
+          initInlineCopyEditing();
           initLogoReplay();
+          initPresenterNotes();
         } else {
           document.getElementById('auth-error').textContent = 'Incorrect passphrase.';
           document.getElementById('auth-input').value = '';
@@ -2366,12 +3374,47 @@
       setTimeout(function() { document.getElementById('auth-input').focus(); }, 80);
     }
 
+    function initPresenterNotes() {
+      var btn = document.getElementById('open-notes-btn');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          if (window.__presenterNotesWindow && !window.__presenterNotesWindow.closed) {
+            window.__presenterNotesWindow.focus();
+          } else {
+            window.__presenterNotesWindow = window.open('presenter-notes.html', 'presenterNotes', 'width=1200,height=900');
+          }
+        });
+      }
+
+      // Listen for requests from notes window
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'requestSlideIndex') {
+          var slides = document.querySelectorAll('.slide');
+          var mid = window.innerHeight / 2;
+          var activeIdx = 0;
+          slides.forEach(function(slide, idx) {
+            var r = slide.getBoundingClientRect();
+            if (r.top <= mid && r.bottom >= mid) activeIdx = idx;
+          });
+          if (event.source) {
+            event.source.postMessage({ slideIndex: activeIdx }, '*');
+          }
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       if (!isAuthed()) showAuthOverlay();
       else {
         initGlobe();
+        renumberSlideFooters();
         initLocalLivePreviews();
+        initLocalLiveDashboardPreviews();
+        buildLivePreviewTuner();
+        initPreviewFullscreenButtons();
+        initInlineCopyEditing();
         initLogoReplay();
+        initPresenterNotes();
       }
     });
   })();
@@ -2412,7 +3455,7 @@
 
     document.addEventListener('keydown', function(e) {
       var tag = (e.target && e.target.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable) || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         go(1);
@@ -2424,7 +3467,7 @@
 
     document.addEventListener('wheel', function(e) {
       var tag = (e.target && e.target.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable) || e.ctrlKey || e.metaKey || e.shiftKey) return;
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
       wheelAccum += e.deltaY;
       clearTimeout(wheelResetTimer);
@@ -2444,11 +3487,18 @@
 
     function markVisibleSlides() {
       var mid = window.innerHeight / 2;
-      slides.forEach(function(slide) {
+      var activeIdx = null;
+      slides.forEach(function(slide, idx) {
         var r = slide.getBoundingClientRect();
         var isActive = r.top <= mid && r.bottom >= mid;
         slide.classList.toggle('is-active', isActive);
+        if (isActive) activeIdx = idx;
       });
+      
+      // Broadcast to presenter notes window
+      if (activeIdx !== null && window.__presenterNotesWindow && !window.__presenterNotesWindow.closed) {
+        window.__presenterNotesWindow.postMessage({ slideIndex: activeIdx }, '*');
+      }
     }
 
     markVisibleSlides();

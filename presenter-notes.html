@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scope Pitch - Presenter Notes</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --panel: #12121a;
+      --panel-2: #171722;
+      --text: #f3f4f8;
+      --muted: #a5a8b8;
+      --muted2: #7a7e92;
+      --line: rgba(255,255,255,0.10);
+      --accent: #7dd3fc;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #fb7185;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(96,165,250,0.12), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(167,139,250,0.08), transparent 28%),
+        var(--bg);
+    }
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 32px 40px 40px;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .header-copy {
+      display: grid;
+      gap: 8px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 760px;
+    }
+    .slide-indicator {
+      text-align: right;
+      display: grid;
+      gap: 6px;
+    }
+    .slide-indicator .count {
+      font-family: 'Orbitron', monospace;
+      font-size: 44px;
+      line-height: 1;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .slide-indicator .label {
+      font-size: 12px;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr auto;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .meta-card,
+    .editor-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.24);
+    }
+    .meta-card {
+      padding: 18px 20px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted2);
+      font-weight: 700;
+    }
+    .slide-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin: 0;
+    }
+    .key-message {
+      margin: 0;
+      color: var(--accent);
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+    .status-card {
+      padding: 18px 20px;
+      display: grid;
+      gap: 10px;
+      min-width: 220px;
+    }
+    .status-line {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      width: fit-content;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+    }
+    .status-pill.saved {
+      color: var(--green);
+      border-color: rgba(74,222,128,0.22);
+      background: rgba(74,222,128,0.08);
+    }
+    .status-pill.unsaved {
+      color: var(--yellow);
+      border-color: rgba(250,204,21,0.22);
+      background: rgba(250,204,21,0.08);
+    }
+    .status-pill.waiting {
+      color: var(--muted2);
+    }
+    .editor-card {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
+    .editor-header,
+    .editor-footer {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .editor-footer {
+      border-bottom: 0;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+    }
+    .editor-header-copy {
+      display: grid;
+      gap: 8px;
+    }
+    .editor-header-copy h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .editor-header-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 760px;
+    }
+    .editor-body {
+      padding: 20px;
+      min-height: 0;
+      display: grid;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      resize: none;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 20px 22px;
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, sans-serif;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    textarea:focus {
+      border-color: rgba(125,211,252,0.35);
+      box-shadow: 0 0 0 3px rgba(125,211,252,0.10);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    button:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(125,211,252,0.30);
+      transform: translateY(-1px);
+    }
+    button.primary {
+      color: #04111d;
+      background: linear-gradient(120deg, var(--accent), #c4b5fd);
+      border-color: transparent;
+    }
+    button.primary:hover {
+      background: linear-gradient(120deg, #98e3ff, #d5c5ff);
+    }
+    .shortcut {
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .waiting-panel {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 40px;
+    }
+    .waiting-panel div {
+      max-width: 620px;
+      display: grid;
+      gap: 10px;
+    }
+    .waiting-panel h2 {
+      margin: 0;
+      font-size: 32px;
+    }
+    .waiting-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    @media (max-width: 1100px) {
+      .container {
+        padding: 24px;
+      }
+      .meta {
+        grid-template-columns: 1fr;
+      }
+      .editor-header,
+      .editor-footer,
+      .header {
+        flex-direction: column;
+        align-items: start;
+      }
+      .slide-indicator {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-copy">
+        <div class="eyebrow">Scope pitch / presenter mode</div>
+        <h1>Presenter Notes</h1>
+        <p>These notes are written as read-aloud talk tracks. Edit them freely, click Save Notes to persist them in this browser, and use Reset to Default if you want to get back to the original script for the current slide.</p>
+      </div>
+      <div class="slide-indicator">
+        <div class="count" id="slide-num">--</div>
+        <div class="label" id="slide-label">Waiting for presentation</div>
+      </div>
+    </div>
+
+    <div class="meta" id="notes-shell" style="display:none;">
+      <div class="meta-card">
+        <div class="meta-label">Active slide</div>
+        <h2 class="slide-title" id="slide-title">--</h2>
+        <p class="key-message" id="key-message"></p>
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Delivery guidance</div>
+        <div class="status-line" id="delivery-guidance">Read this naturally, not mechanically. Keep eye contact between phrases, and treat this as a polished live script rather than internal notes.</div>
+      </div>
+      <div class="meta-card status-card">
+        <div class="meta-label">Status</div>
+        <div class="status-pill waiting" id="save-status">Waiting</div>
+        <div class="status-line" id="save-detail">Open the main presentation and move between slides. This window will sync automatically.</div>
+      </div>
+    </div>
+
+    <div class="editor-card" id="editor-card" style="display:none;">
+      <div class="editor-header">
+        <div class="editor-header-copy">
+          <h2>Word-for-word talk track</h2>
+          <p>Write this exactly the way you want to say it. Your edits save to localStorage in this browser. You can also press Cmd+S or Ctrl+S.</p>
+        </div>
+        <div class="actions">
+          <button type="button" id="copy-notes">Copy Notes</button>
+          <button type="button" id="reset-notes">Reset to Default</button>
+          <button type="button" class="primary" id="save-notes">Save Notes</button>
+        </div>
+      </div>
+      <div class="editor-body">
+        <textarea id="notes-editor" spellcheck="true"></textarea>
+      </div>
+      <div class="editor-footer">
+        <div class="shortcut">Tip: keep sentences a little shorter than you would in a written memo. This will read more naturally on stage.</div>
+        <div class="status-line" id="word-count">0 words</div>
+      </div>
+    </div>
+
+    <div class="editor-card" id="waiting-card">
+      <div class="waiting-panel">
+        <div>
+          <h2>Waiting for presentation...</h2>
+          <p>Open the main Scope deck and this window will follow the active slide. Once a slide is active, you will be able to edit, save, and reset the talk track for that slide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var STORAGE_KEY = 'scope-pitch-presenter-notes-v3';
+    var currentSlide = null;
+    var isDirty = false;
+    var savedNotes = loadSavedNotes();
+
+    var DEFAULT_NOTES = {
+      0: {
+        title: 'Opening stage',
+        keyMessage: 'Silent landing cover before the spoken presentation begins.',
+        guidance: 'No scripted talk track needed here. Let the title card breathe, settle the room, then begin on slide 1.',
+        script: ``
+      },
+      1: {
+        title: 'Hero',
+        keyMessage: 'Scope is one operational surface for installations in the field.',
+        guidance: 'This is the thesis slide. Keep it crisp and confident.',
+        script: `Scope is one operational surface for electronic artworks in the field, including the portal network.
+
+This is not a pitch for something I would like to build. This already exists. It grew out of the real work of keeping these installations alive.
+
+So the opportunity here is not to imagine whether this category should exist. The opportunity is to formalise, harden, and expand something that already fits the reality of the network.`
+      },
+      2: {
+        title: 'The problem',
+        keyMessage: 'Today, the network still operates mostly in the dark.',
+        guidance: 'Use this slide to create urgency. Visitor reports are the emotional hook.',
+        script: `Right now, the portal network still operates almost completely in the dark.
+
+When something goes wrong, the first signal is often a visitor report, a message from site staff, or silence that lasts too long. That means diagnosis starts late, and it starts blind.
+
+Remote desktop tools help once you already know where to look, but they are not monitoring, and they are not an operating system. The deeper problem is simpler: too much of how this network runs lives in one person’s head.`
+      },
+      3: {
+        title: 'Vs Konstruktiv',
+        keyMessage: 'The old controller proved the need, but it only covered one layer.',
+        guidance: 'Be fair to the old tool. Position it as useful proof, not as failure.',
+        script: `Konstruktiv was important because it proved that a mobile control surface is genuinely valuable.
+
+But it only touched one layer of the installation. It could help with a narrow set of control and recovery actions, but it did not give us a full operational picture across display, hardware, network state, uptime, and alerts.
+
+So the takeaway was not that the idea was wrong. The takeaway was that the need was real, and the actual product had to be much broader.`
+      },
+      4: {
+        title: 'From controller to system',
+        keyMessage: 'The shift is from controlling a cabinet to operating the whole installation.',
+        guidance: 'Make the change in scope feel obvious and necessary.',
+        script: `The real shift here is from controlling a cabinet to operating the whole installation.
+
+I keep the convenience of a mobile-first control surface, but I extend it across the layers that actually matter in the field: control hardware, display systems, compute, connectivity, power, and audience-visible uptime.
+
+That is why Scope is more than a better remote. It is an operating surface for the installation as a whole.`
+      },
+      5: {
+        title: 'What Scope is',
+        keyMessage: 'Scope is an operational system, not just another dashboard.',
+        guidance: 'Slow down a little here. This is where you define the category.',
+        script: `When I say Scope is an operational system, I mean it models the installation as one coherent operating environment rather than a handful of disconnected tools.
+
+It pulls visual proof, device control, machine state, connectivity, power, and uptime semantics into one surface so an operator can reason about the whole installation, not just one component at a time.
+
+That is what makes it a different kind of product. A controller gives you buttons. A dashboard gives you charts. Scope gives you the loop between them - see it, understand it, act on it - so the next incident starts from knowledge, not from scratch.`
+      },
+      6: {
+        title: 'What Scope sees',
+        keyMessage: 'Scope sees the installation the way operators actually experience it.',
+        guidance: 'Point to the layers. This is about breadth and realism.',
+        script: `Scope sees the installation the way operators actually need to see it.
+
+That means live audience experience, display behavior, hardware health, network condition, on-site sensing, and the alert context around them.
+
+In other words, it does not just tell you that a machine is online. It helps tell you whether the installation is actually healthy, actually visible, and actually doing its job in public.
+
+Once you look at it that way, the architecture almost designs itself.`
+      },
+      7: {
+        title: 'Architecture',
+        keyMessage: 'The architecture turns scattered signals into one operational picture.',
+        guidance: 'Keep this readable. Translate the system diagram into plain English.',
+        script: `Under the hood, the architecture is doing something simple but powerful.
+
+It is taking signals from the layers that already exist around the portal, shaping them into one retained operational picture, and making that picture available through the controller and the dashboard.
+
+That is what lets Scope move beyond ad hoc support. Instead of hopping tool to tool, the installation starts to describe itself through one coherent system.
+
+And once that system exists, you can describe the operating logic very clearly.`
+      },
+      8: {
+        title: 'Agentic workflow',
+        keyMessage: 'The loop is observe, diagnose, act, and learn.',
+        guidance: 'Frame this as operational maturity, not AI hype.',
+        script: `What this slide shows is the operating logic that falls out of that architecture.
+
+First, Scope observes the real installation. Then it helps narrow a fault across layers. Then it exposes the right action in the right place. And because the system retains event history, telemetry, screenshots, and uptime context, the next incident starts with evidence instead of guesswork.
+
+That compounding effect is one of the real strategic advantages of building an operating layer this way.
+
+With that in mind, let me show you how it works in the actual controller.`
+      },
+      9: {
+        title: 'Overview tab',
+        keyMessage: 'Start with the operational picture at a glance.',
+        guidance: 'Use this as your first live product proof. Read the screen from top to bottom.',
+        script: `This is the screen that tells me, in a few seconds, whether a portal is healthy, what is wrong, and what I should do next.
+
+You can see the audience-facing state, the technical state, and the likely recovery path without piecing the story together from memory or message threads.
+
+That is a meaningful step up from starting every incident with guesswork and remote desktop.`
+      },
+      10: {
+        title: 'Camera tab',
+        keyMessage: 'The controller shows the portal view the other side actually sees and lets me tune that capture accurately.',
+        guidance: 'Frame this as the remote setup and verification view, not as screen-output monitoring.',
+        script: `The camera tab shows me the portal view the other side actually sees.
+
+That is useful for checking framing, seeing whether people are interacting, and making sure the captured view is the right one, not just a generic 16 by 9 camera feed.
+
+I can also adjust the virtual pan and tilt, plus the lens correction, so the remote view matches what the other portal should actually receive.
+
+This was especially helpful while setting up in Brazil, because I could show the client the exact cropped circular view from the remote side instead of trying to explain it with the wrong aspect ratio.`
+      },
+      11: {
+        title: 'Screen tab',
+        keyMessage: 'Display control is part of the operating surface.',
+        guidance: 'Be explicit that this closes a gap from the earlier tool.',
+        script: `The screen tab brings LED display control into the same operational surface.
+
+That means settings that directly affect audience experience, like brightness and display behavior, are no longer detached from the rest of the support workflow.
+
+This is one of the places where Scope clearly moves beyond the old controller. It connects what the audience sees with what the operator can actually do.`
+      },
+      12: {
+        title: 'Hardware tab',
+        keyMessage: 'Operators can see deep hardware state without leaving the controller.',
+        guidance: 'Present this as confidence-building infrastructure.',
+        script: `The hardware tab gives a deeper view into the installation’s physical and computational state.
+
+That matters because real incidents rarely belong to a single clean category. Hardware symptoms, display symptoms, and network symptoms often overlap.
+
+When that information is available in one place, diagnosis becomes faster, and you waste far less time chasing the wrong layer first.`
+      },
+      13: {
+        title: 'Power tab',
+        keyMessage: 'Power and UPS state belong in the operating picture.',
+        guidance: 'Tie power visibility to risk reduction and operating cost.',
+        script: `Power state is one of those categories that becomes expensive precisely when it is invisible.
+
+By bringing UPS state, power context, and operating cost into the same view, Scope makes it easier to spot problems early and easier to understand what kind of intervention is actually needed.
+
+That is a good example of the product philosophy here: if it can affect installation uptime, it belongs in the operating picture.`
+      },
+      14: {
+        title: 'Events tab',
+        keyMessage: 'Events turn isolated incidents into a readable operational timeline.',
+        guidance: 'Stress that timeline beats anecdote.',
+        script: `The events tab turns support from anecdote into timeline.
+
+Instead of reconstructing what probably happened from memory and chat logs, operators can see a sequence of relevant events and use that to reason much more clearly about cause and effect.
+
+That makes post-incident understanding stronger, but it also helps in the moment, because it reduces the amount of blind trial and error during recovery.`
+      },
+      15: {
+        title: 'Uptime tab',
+        keyMessage: 'Audience-visible uptime is the metric that actually matters.',
+        guidance: 'Emphasize the distinction between process uptime and real uptime.',
+        script: `This slide matters because it draws the line Portals actually cares about.
+
+Scope measures uptime the way a visitor would. Not "is the machine on?" but "is the artwork actually working right now, in public?"
+
+That gives the network a metric that matches real public experience, which is the metric operations should ultimately answer to.`
+      },
+      16: {
+        title: 'Settings tab',
+        keyMessage: 'Identity, configuration, and install context live in one place.',
+        guidance: 'Make this about reducing friction and operator error.',
+        script: `The settings tab brings identity and configuration context into the same surface as live operations.
+
+That sounds small, but it reduces a lot of friction. Operators do not have to hunt across documents, notes, and old messages to confirm what a portal is, how it is configured, or what environment they are touching.
+
+That lowers risk, speeds handoffs, and makes the system much easier to operate as the network grows.`
+      },
+      17: {
+        title: 'Already in use',
+        keyMessage: 'This is already useful in real operations.',
+        guidance: 'Ground the pitch in reality. Make it clear this is past the invention stage.',
+        script: `Everything I just showed you is live on Portal 5 today. It is already catching faults earlier and cutting the time between "something looks wrong" and "here is what I do."
+
+So we are past the question of whether this would be useful. The question now is how deliberately Portals wants to adopt and extend something that is already earning its place in real operations.
+
+And now I want to widen the frame from one portal to the network around it.`
+      },
+      18: {
+        title: 'Dashboard intro',
+        keyMessage: 'The dashboard is the fleet and project layer around the controller.',
+        guidance: 'Use this as the bridge from one installation to the whole network.',
+        script: `Up to this point, we have been looking at the controller view for one installation.
+
+That is the operator surface for going deep on a single portal. Now I want to widen the frame and show the layer that sits around it.
+
+The dashboard gives you the fleet and project layer around the controller, so operators can see where attention is needed across the network and carry more install context without overloading the mobile app.
+
+That pairing is important. The controller is for fast action in one place. The dashboard is for network awareness and coordination.`
+      },
+      19: {
+        title: 'Augmentl Dashboard',
+        keyMessage: 'This is the full fleet and operations layer around every portal.',
+        guidance: 'Walk the room through what they are seeing. Keep it grounded.',
+        script: `This is the Augmentl Dashboard as the fleet and operations layer around every portal.
+
+What I want you to notice is that the system is not only listing devices. It is presenting a live operational surface with enough context to understand health, prioritise attention, and move into the right detail quickly.
+
+That is the difference between a static admin panel and an operating layer.`
+      },
+      20: {
+        title: 'Portals-only dashboard',
+        keyMessage: 'The same system can expose a dedicated portals view.',
+        guidance: 'Reassure them that Scope can be scoped appropriately.',
+        script: `The same underlying system can also expose a dedicated portals dashboard without dragging the rest of the Augmentl workspace into view.
+
+That matters because Portals does not need to inherit unnecessary complexity in order to benefit from the operating layer.
+
+So from a product and governance standpoint, the system can be scoped for Portals directly, rather than asking Portals to adapt to someone else’s internal tooling.`
+      },
+      21: {
+        title: 'Project workspaces',
+        keyMessage: 'The dashboard carries project and install context the controller should not carry.',
+        guidance: 'Position this as scale-enabling structure.',
+        script: `Project workspaces matter because operations do not happen in a vacuum.
+
+Every installation sits inside a wider context of site details, hardware decisions, history, stakeholders, and support realities. The dashboard can carry that context so the controller stays focused and fast.
+
+That split lets the product scale much more gracefully. One surface stays operational. The other carries the broader memory of the network.`
+      },
+      22: {
+        title: 'Monitoring and alerts',
+        keyMessage: 'The loop closes before a human opens remote desktop.',
+        guidance: 'This is a strong benefit slide. Deliver it as a concrete operational upgrade.',
+        script: `This is where the loop starts to close properly.
+
+Instead of waiting for a human to notice a problem and then jumping straight into remote desktop, Scope can surface the issue earlier, retain the relevant context, and route attention through monitoring and alerts.
+
+That changes support from reactive improvisation into a much more deliberate operational workflow.`
+      },
+      23: {
+        title: 'The full picture',
+        keyMessage: 'The product is the connection between controller, dashboard, and alerts.',
+        guidance: 'Use this slide as a breath and synthesis point before you pivot into commercial framing.',
+        script: `So let me pull this together before we talk about what it means commercially.
+
+You have seen the controller for going deep on one portal. The dashboard for seeing across the network. And alerts that close the loop before anyone opens a remote desktop.
+
+That is the product. Not any one of those pieces on its own, but the fact that they connect into one picture that retains context and compounds over time.
+
+That leads directly to what this actually buys the network.`
+      },
+      24: {
+        title: 'What it buys the network',
+        keyMessage: 'Scope gives Portals operational leverage and strategic ownership.',
+        guidance: 'This is the benefits slide. Land both the practical and strategic upside.',
+        script: `What Portals buys here is not only a better toolset for day-to-day support.
+
+It buys faster diagnosis, better visibility, a stronger uptime model, clearer accountability, and a system that becomes more valuable as more of the network runs through it.
+
+Strategically, it also means Portals is investing in an operating layer that matches its actual installations, instead of continuing to patch together a workflow from tools that were never designed for this job.
+
+That is exactly why the commercial comparison matters.`
+      },
+      25: {
+        title: 'Comparison',
+        keyMessage: 'Funding Scope buys a dedicated operating layer, not more manual support.',
+        guidance: 'Make the financial comparison feel practical, not defensive.',
+        script: `At this point, the product story is on the table, so the fork is simple.
+
+Portals can keep funding manual support around Video Window - or fund the system that is already replacing that support model on the ground.
+
+One path stays fragile. The other compounds.`
+      },
+      26: {
+        title: 'Network growth vision',
+        keyMessage: 'This is how portal support becomes a reproducible operating network.',
+        guidance: 'Make this feel like an inevitable maturation path.',
+        script: `What this enables over time is a shift from reactive portal support to a reproducible operating network.
+
+First, one portal becomes fully legible. Then the fleet becomes visible. Then operations become easier to standardise, hand off, and scale.
+
+That is strategically important because it means the network can grow without depending on the same level of heroic, one-off recovery work forever.
+
+That is where I want to go next.`
+      },
+      27: {
+        title: 'Next layer',
+        keyMessage: 'The next worthwhile expansions are already clear.',
+        guidance: 'Frame this as prioritised expansion, not unfinished core product.',
+        script: `The encouraging thing at this point is that the next worthwhile expansions are already clear.
+
+That includes things like more structured client-facing views, stronger PC-side install and runtime management, and deeper project workspaces where that adds real operational value.
+
+So the roadmap is not searching for a product. It is deciding where to deepen a product that already has a strong operational center of gravity.
+
+If Portals wants to adopt it seriously, the next question is how safely and cleanly it can be deployed.`
+      },
+      28: {
+        title: 'Security',
+        keyMessage: 'Access, hosting, and data handling can be structured to suit Portals cleanly.',
+        guidance: 'Be calm and precise here. Confidence comes from clarity.',
+        script: `On security, the key point is that access, hosting, and data handling can be structured to suit Portals cleanly.
+
+Telemetry and commands already move through encrypted channels, direct hardware exposure can stay tightly constrained, and controller access can be authenticated and scoped appropriately.
+
+So this does not require Portals to accept a loose or improvised security model. It can be shaped into a production-grade operating setup.
+
+And with that reassurance in place, the question becomes why adopting Scope is strategically stronger than continuing with a fragmented support stack.`
+      },
+      29: {
+        title: 'The ask',
+        keyMessage: 'Adopt Scope as the shared operating layer in partnership.',
+        guidance: 'Be direct. This slide should feel clear and reasonable.',
+        script: `So the ask is straightforward.
+
+Adopt Scope as the portal network’s shared operating layer, develop it in partnership, and fund it at the level Portals was already prepared to spend.
+
+That gives Portals a real operating system for the network, and it gives us the mandate to harden, govern, and roll it out deliberately instead of letting it remain an informal internal advantage.`
+      },
+      30: {
+        title: 'Closing',
+        keyMessage: 'End on clarity, confidence, and next steps.',
+        guidance: 'Keep this warm and composed. Do not oversell. Invite the next conversation.',
+        script: `The main point I want to leave you with is simple: Scope already exists in the shape that matters.
+
+It is already helping make installations more legible, more operable, and less dependent on guesswork. The question now is whether Portals wants to adopt that operating layer deliberately and help shape what it becomes.
+
+If that direction feels right, the next step is to review the system in action, align on governance and rollout, and turn this from a useful internal reality into shared network infrastructure.`
+      }
+    };
+
+    function loadSavedNotes() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveSavedNotes() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedNotes));
+    }
+
+    function getSlideData(slideIndex) {
+      return DEFAULT_NOTES[slideIndex] || {
+        title: 'Untitled slide',
+        keyMessage: 'Add a custom key message for this slide.',
+        guidance: 'No default talk track has been written for this slide yet.',
+        script: ''
+      };
+    }
+
+    function getCurrentScript(slideIndex) {
+      var defaults = getSlideData(slideIndex);
+      return Object.prototype.hasOwnProperty.call(savedNotes, slideIndex) ? savedNotes[slideIndex] : defaults.script;
+    }
+
+    function setStatus(mode, detail) {
+      var pill = document.getElementById('save-status');
+      var detailEl = document.getElementById('save-detail');
+      pill.className = 'status-pill ' + mode;
+      if (mode === 'saved') pill.textContent = 'Saved';
+      else if (mode === 'unsaved') pill.textContent = 'Unsaved changes';
+      else pill.textContent = 'Waiting';
+      detailEl.textContent = detail || '';
+    }
+
+    function updateWordCount(value) {
+      var words = (value || '').trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById('word-count').textContent = words + ' words';
+    }
+
+    function renderSlide(slideIndex) {
+      currentSlide = slideIndex;
+      isDirty = false;
+
+      var data = getSlideData(slideIndex);
+      var currentScript = getCurrentScript(slideIndex);
+
+      document.getElementById('notes-shell').style.display = 'grid';
+      document.getElementById('editor-card').style.display = 'grid';
+      document.getElementById('waiting-card').style.display = 'none';
+
+      document.getElementById('slide-num').textContent = slideIndex;
+      document.getElementById('slide-label').textContent = data.title;
+      document.getElementById('slide-title').textContent = data.title;
+      document.getElementById('key-message').textContent = data.keyMessage || '';
+      document.getElementById('delivery-guidance').textContent = data.guidance || '';
+
+      var editor = document.getElementById('notes-editor');
+      editor.value = currentScript;
+      updateWordCount(currentScript);
+      setStatus('saved', Object.prototype.hasOwnProperty.call(savedNotes, slideIndex)
+        ? 'Using your saved version for this slide.'
+        : 'Using the default talk track for this slide.');
+    }
+
+    function saveCurrentSlide() {
+      if (currentSlide === null) return;
+      var editor = document.getElementById('notes-editor');
+      savedNotes[currentSlide] = editor.value;
+      saveSavedNotes();
+      isDirty = false;
+      setStatus('saved', 'Saved to localStorage for this browser.');
+    }
+
+    function resetCurrentSlide() {
+      if (currentSlide === null) return;
+      delete savedNotes[currentSlide];
+      saveSavedNotes();
+      var defaultScript = getSlideData(currentSlide).script;
+      var editor = document.getElementById('notes-editor');
+      editor.value = defaultScript;
+      updateWordCount(defaultScript);
+      isDirty = false;
+      setStatus('saved', 'Reset to the default talk track for this slide.');
+    }
+
+    function copyCurrentNotes() {
+      var editor = document.getElementById('notes-editor');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(editor.value);
+        setStatus(isDirty ? 'unsaved' : 'saved', 'Copied current notes to clipboard.');
+      }
+    }
+
+    document.getElementById('notes-editor').addEventListener('input', function(event) {
+      isDirty = true;
+      updateWordCount(event.target.value);
+      setStatus('unsaved', 'You have unsaved edits on this slide.');
+    });
+
+    document.getElementById('save-notes').addEventListener('click', saveCurrentSlide);
+    document.getElementById('reset-notes').addEventListener('click', resetCurrentSlide);
+    document.getElementById('copy-notes').addEventListener('click', copyCurrentNotes);
+
+    window.addEventListener('keydown', function(event) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        saveCurrentSlide();
+      }
+    });
+
+    window.addEventListener('message', function(event) {
+      if (event.data && typeof event.data.slideIndex === 'number') {
+        renderSlide(event.data.slideIndex);
+      }
+    });
+
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({ type: 'requestSlideIndex' }, '*');
+    }
+  </script>
+</body>
+</html>
