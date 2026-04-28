@@ -44,7 +44,7 @@ assert_before('We did have a remote-management app, but it only touched the cont
 assert_contains('Some AC controls, but weak in practice')
 assert_contains('What the old controller mostly was')
 assert_contains('What <span class="scope-brand">Scope</span> becomes instead')
-assert_contains('This slide is about the product surface expanding. The operating loop comes next.')
+assert_contains('The controller was a narrow intervention tool. <span class="scope-brand">Scope</span> becomes the operational layer around the whole installation.')
 
 # Scope / coverage / architecture order.
 assert_before('An operational system for electronic art installations. Not just another dashboard.', '<span class="scope-brand">Scope</span> sees what an installation actually is.')
@@ -85,7 +85,7 @@ for title in [
 # Future work covers client-facing views and the PC-side installation layer.
 assert_contains('Limited client-facing portal views')
 assert_contains('A future scoped client view can let each site or stakeholder see only its own portal status, health summary, and a tightly limited set of permitted actions.')
-assert_contains('Better PC-side install and runtime management')
+assert_contains('More reproducible portal-side runtime')
 assert_contains('Scoped actions like blank or blur for their own screen only')
 
 # Ending business framing is partnership/governance aware.

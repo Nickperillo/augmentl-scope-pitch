@@ -462,6 +462,7 @@
       display: none;
       border: 0;
       background: #0a0a0f;
+      pointer-events: none;
     }
     .phone-frame-large.is-live img {
       display: none;
@@ -2241,17 +2242,32 @@
 
     function initLocalLivePreviews() {
       var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '100.82.235.72';
-      if (!isLocal) return;
+      var params = new URLSearchParams(location.search);
+      var enableLivePreviews = params.get('livePreviews') === '1';
+      var previewData = params.get('previewData') || 'live';
+      var previewPortal = params.get('previewPortal') || 'portal5';
+      var previewAutoscroll = params.get('previewAutoscroll') !== '0';
+      if (!isLocal || !enableLivePreviews) return;
       document.querySelectorAll('.phone-frame-mobile[data-live-tab]').forEach(function(frame) {
         if (frame.querySelector('iframe')) return;
         var tab = frame.getAttribute('data-live-tab');
         if (!tab) return;
         var iframe = document.createElement('iframe');
-        iframe.setAttribute('scrolling', 'yes');
+        var iframeParams = new URLSearchParams();
+        if (previewData === 'fixture') iframeParams.set('fixture', 'example.portal5-full');
+        iframeParams.set('portal', previewPortal);
+        iframeParams.set('tab', tab);
+        iframeParams.set('embed', '1');
+        iframeParams.set('autoscroll', previewAutoscroll ? '1' : '0');
+        iframe.setAttribute('scrolling', 'no');
         iframe.setAttribute('title', 'Live Scope ' + tab + ' preview');
-        iframe.src = 'http://' + location.hostname + ':3203/v2/?fixture=example.portal5-full&portal=portal5&tab=' + encodeURIComponent(tab) + '&embed=1&autoscroll=1';
+        iframe.src = 'http://' + location.hostname + ':3203/v2/?' + iframeParams.toString();
         frame.appendChild(iframe);
         frame.classList.add('is-live');
+        frame.addEventListener('wheel', function(event) {
+          event.preventDefault();
+          if (iframe.contentWindow) iframe.contentWindow.postMessage({ type: 'scope-preview-scroll', deltaY: event.deltaY }, '*');
+        }, { passive: false });
       });
     }
 
